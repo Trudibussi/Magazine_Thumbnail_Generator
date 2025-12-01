@@ -332,7 +332,7 @@ async function handleVerticalVersion() {
     return
   }
   
-  const geminiKey = getApiKeys().gemini
+  const geminiKey = elements.geminiKey.value
   if (!geminiKey) {
     showNotification('Gemini APIキーを設定してください')
     return
