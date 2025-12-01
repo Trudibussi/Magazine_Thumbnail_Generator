@@ -143,11 +143,13 @@
               <label class="option-label">アスペクト比</label>
               <div class="select-wrapper">
                 <select id="aspect-ratio" class="select-input">
-                  <option value="1:1.91">1:1.91 — OGP画像</option>
-                  <option value="16:9">16:9 — YouTube</option>
+                  <option value="16:9">16:9 — YouTube / OGP</option>
                   <option value="1:1">1:1 — Instagram正方形</option>
                   <option value="4:5">4:5 — Instagram縦</option>
                   <option value="9:16">9:16 — ストーリーズ</option>
+                  <option value="3:2">3:2 — 横長</option>
+                  <option value="2:3">2:3 — 縦長</option>
+                  <option value="21:9">21:9 — ウルトラワイド</option>
                 </select>
                 <div class="select-arrow"></div>
               </div>
@@ -202,11 +204,58 @@
           </button>
         </div>
         <div class="card-body">
+          <!-- Modification Gacha Buttons -->
+          <div class="modification-panel">
+            <h3 class="modification-title">🎲 修正ガチャ（AI自動調整）</h3>
+            <div class="modification-grid">
+              <div class="modification-group">
+                <label class="modification-label">🎨 カラー</label>
+                <div class="modification-buttons">
+                  <button class="btn-mod" data-mod="blue">🔵 青系</button>
+                  <button class="btn-mod" data-mod="green">🟢 緑系</button>
+                  <button class="btn-mod" data-mod="yellow">🟡 黄色系</button>
+                  <button class="btn-mod" data-mod="purple">🟣 紫系</button>
+                  <button class="btn-mod" data-mod="red">🔴 赤系</button>
+                  <button class="btn-mod" data-mod="monochrome">⚫ モノクロ</button>
+                </div>
+              </div>
+              <div class="modification-group">
+                <label class="modification-label">🔤 フォント</label>
+                <div class="modification-buttons">
+                  <button class="btn-mod" data-mod="font_bold">💪 超極太</button>
+                  <button class="btn-mod" data-mod="font_modern">✨ モダン</button>
+                  <button class="btn-mod" data-mod="font_handwritten">✍️ 手書き</button>
+                </div>
+              </div>
+              <div class="modification-group">
+                <label class="modification-label">📝 テキスト</label>
+                <div class="modification-buttons">
+                  <button class="btn-mod" data-mod="text_shorter">⚡ 短く</button>
+                  <button class="btn-mod" data-mod="text_dramatic">🔥 ドラマチック</button>
+                  <button class="btn-mod" data-mod="text_formal">👔 フォーマル</button>
+                </div>
+              </div>
+              <div class="modification-group">
+                <label class="modification-label">📊 レイアウト</label>
+                <div class="modification-buttons">
+                  <button class="btn-mod" data-mod="layout_compact">📦 コンパクト</button>
+                  <button class="btn-mod" data-mod="layout_simple">🌿 シンプル</button>
+                </div>
+              </div>
+              <div class="modification-group modification-group-full">
+                <button class="btn-mod btn-mod-random" data-mod="random">
+                  <span class="btn-mod-icon">🎰</span>
+                  <span class="btn-mod-text">ランダムガチャ</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
           <div class="yaml-editor-wrapper">
             <div class="yaml-line-numbers" id="yaml-line-numbers"></div>
             <textarea id="yaml-editor" class="yaml-editor" spellcheck="false"></textarea>
           </div>
-          <p class="card-note">YAMLを編集して「再生成」で画像を更新できます</p>
+          <p class="card-note">YAMLを直接編集するか、上のボタンでAI自動調整して「再生成」で画像を更新できます</p>
         </div>
       </section>
 

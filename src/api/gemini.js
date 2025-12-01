@@ -76,7 +76,7 @@ footer:
 入力されたテキストを分析し、上記のYAML形式で週刊誌風サムネイルのプランを出力してください。`
 
 /**
- * Generate YAML plan from content using Gemini 3.0 Pro
+ * Generate YAML plan from content using Gemini 3 Pro
  * @param {string} content - The content to analyze
  * @param {string} apiKey - Gemini API key
  * @returns {Promise<string>} - The generated YAML plan
@@ -131,6 +131,95 @@ export async function generateYamlPlan(content, apiKey) {
 }
 
 /**
+ * Adjust YAML plan with various modifications using Gemini 3 Pro
+ * @param {string} yamlContent - The current YAML plan
+ * @param {string} modificationType - Type of modification (color, font, text, etc.)
+ * @param {string} apiKey - Gemini API key
+ * @returns {Promise<string>} - The adjusted YAML plan
+ */
+export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
+  const modificationPrompts = {
+    'blue': 'カラースキームを青系に変更してください。黒、青、深いネイビー、白、ライトブルーを使用。強調色は明るい青。',
+    'green': 'カラースキームをライトグリーン系に変更してください。黒、ライムグリーン、深い緑、白、明るい黄緑を使用。強調色は鮮やかな緑。',
+    'yellow': 'カラースキームを黄色系に変更してください。黒、黄色、オレンジ、白、ゴールドを使用。強調色は濃いオレンジ。',
+    'purple': 'カラースキームを紫系に変更してください。黒、紫、深いパープル、白、ラベンダーを使用。強調色は鮮やかなピンク。',
+    'red': 'カラースキームを赤系に変更してください。黒、赤、深いワインレッド、白、黄色を使用。強調色は鮮烈な赤。',
+    'monochrome': 'カラースキームをモノクロ系に変更してください。黒、白、グレーのみを使用。強調色は濃いグレー。',
+    'font_bold': 'フォントスタイルを「超極太ゴシック体」に変更してください。インパクトを最大化。',
+    'font_modern': 'フォントスタイルを「モダンなサンセリフ体」に変更してください。洗練された印象に。',
+    'font_handwritten': 'フォントスタイルを「手書き風」に変更してください。親しみやすい印象に。',
+    'text_shorter': 'テキストをより短く、パンチのある表現に変更してください。各カードのテキストを1行にまとめる。',
+    'text_dramatic': 'テキストをよりドラマチックで煙り立てる表現に変更してください。週刊誌の中吊り広告らしく。',
+    'text_formal': 'テキストをよりフォーマルで落ち着いた表現に変更してください。ビジネス向けの印象に。',
+    'layout_compact': 'レイアウトをよりコンパクトにして、カード数を増やしてください（最大6枚）。',
+    'layout_simple': 'レイアウトをよりシンプルにして、カード数を減らしてください（3枚程度）。',
+    'random': 'ランダムに創意的な変更を加えてください。カラー、フォント、テキスト、レイアウトのいずれかを変更。'
+  }
+
+  const modificationInstruction = modificationPrompts[modificationType] || modificationPrompts['random']
+
+  const systemPrompt = `あなたはYAMLプランの調整エキスパートです。
+与えられたYAMLプランに対して、指定された修正を加えてください。
+
+## 重要なルール
+- YAMLの構造を維持すること
+- 必ず全体のYAMLを出力すること（一部だけではない）
+- マークダウンのコードブロックで囲むこと（\`\`\`yaml ... \`\`\`）
+- 句読点は使用しないこと
+- カラー名は英語で指定すること（black, white, red, yellow, blue, green, purple, orange, gold, grayなど）
+
+以下の修正指示に従って、YAMLを調整してください。`
+
+  const response = await fetch(
+    `${GEMINI_API_URL}/gemini-3-pro-preview:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: systemPrompt },
+              { text: `\n\n## 修正指示\n${modificationInstruction}` },
+              { text: `\n\n## 現在のYAML\n\`\`\`yaml\n${yamlContent}\n\`\`\`` }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.9,
+          maxOutputTokens: 4096,
+        }
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+  // Extract YAML from markdown code block
+  const yamlMatch = text.match(/```yaml\n([\s\S]*?)```/)
+  if (yamlMatch) {
+    return yamlMatch[1].trim()
+  }
+
+  // Try to extract YAML without code block markers
+  const yamlStart = text.indexOf('layout:')
+  if (yamlStart !== -1) {
+    return text.slice(yamlStart).trim()
+  }
+
+  return text.trim()
+}
+
+/**
  * Build image generation prompt from YAML plan
  * @param {string} yamlContent - The YAML plan
  * @returns {string} - The image generation prompt
@@ -148,6 +237,13 @@ function buildImagePrompt(yamlContent) {
 - 中央は2行×2〜3列のカードグリッド配置
 - 各カードは指定された背景色で塗りつぶし
 - プロフェッショナルなグラフィックデザイン品質
+
+## セーフティエリア設定（重要）
+- この画像は16:9で生成されますが、X（Twitter）やnoteのOGP画像（1:1.91）でトリミングされる可能性があります
+- **上下に各10%のセーフティマージン（背景のみのエリア）を確保してください**
+- 重要なテキストやカードは画像の中央80%のエリア内に配置すること
+- 上下のマージンエリアには背景テクスチャのみを配置し、文字やカードを配置しないこと
+- これにより、1:1.91にトリミングされても全ての情報が視認可能になります
 
 ## YAML仕様
 ${yamlContent}
@@ -196,7 +292,8 @@ export async function generateImages(yamlContent, aspectRatio, count, apiKey, on
 }
 
 /**
- * Generate a single image
+ * Generate a single image using Gemini 3 Pro Image Preview
+ * Based on official Google example: https://ai.google.dev/gemini-api/docs/image-generation
  * @param {string} prompt - The image generation prompt
  * @param {string} aspectRatio - The aspect ratio
  * @param {string} apiKey - Gemini API key
@@ -209,6 +306,8 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
 
   console.log(`Generating image ${seed + 1} with aspect ratio: ${aspectRatio}`)
 
+  // Build request body following official JavaScript SDK structure
+  // Based on: chat.sendMessage({message})
   const requestBody = {
     contents: [
       {
@@ -216,19 +315,19 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
       }
     ],
     generationConfig: {
-      responseModalities: ['IMAGE', 'TEXT'],
-    },
-    outputOptions: {
-      mimeType: 'image/png',
+      responseModalities: ['TEXT', 'IMAGE']
     }
   }
 
-  // Add image config if supported
+  // Add image config with aspect ratio only
+  // Note: resolution parameter is not supported in REST API
   if (aspectRatio) {
-    requestBody.generationConfig.imageGenerationConfig = {
-      aspectRatio: aspectRatio,
+    requestBody.generationConfig.imageConfig = {
+      aspectRatio: aspectRatio
     }
   }
+
+  console.log('Request body:', JSON.stringify(requestBody, null, 2))
 
   const response = await fetch(
     `${GEMINI_API_URL}/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
@@ -248,23 +347,27 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
   }
 
   const data = await response.json()
-  console.log('API Response:', JSON.stringify(data, null, 2).substring(0, 500))
+  console.log('API Response structure:', JSON.stringify(data, null, 2).substring(0, 500))
 
-  // Extract image from response - check multiple possible locations
+  // Extract image from response - following official SDK pattern
+  // for part in response.parts:
+  //     if part.inline_data is not None:
+  //         image = part.as_image()
   const candidates = data.candidates || []
   for (const candidate of candidates) {
     const parts = candidate.content?.parts || []
     for (const part of parts) {
-      // Check for inline data
+      // Check for inline_data (matches Python SDK's part.inline_data)
       if (part.inlineData) {
         const mimeType = part.inlineData.mimeType || 'image/png'
         const base64Data = part.inlineData.data
-        console.log(`Found image data, mime type: ${mimeType}`)
+        console.log(`Found image data, mime type: ${mimeType}, size: ${base64Data.length} bytes`)
         return `data:${mimeType};base64,${base64Data}`
       }
-      // Check for file data
+      // Also check for fileData as fallback
       if (part.fileData) {
         console.log('Found file data:', part.fileData)
+        // File data would need to be downloaded separately
       }
     }
   }

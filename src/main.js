@@ -1,6 +1,6 @@
 import './style.css'
 import { fetchUrlContent } from './api/firecrawl.js'
-import { generateYamlPlan, generateImages } from './api/gemini.js'
+import { generateYamlPlan, generateImages, adjustYamlPlan } from './api/gemini.js'
 import { saveApiKeys, loadApiKeys } from './utils/storage.js'
 import * as yaml from 'js-yaml'
 
@@ -39,6 +39,7 @@ const elements = {
   yamlSection: document.getElementById('yaml-section'),
   yamlEditor: document.getElementById('yaml-editor'),
   yamlLineNumbers: document.getElementById('yaml-line-numbers'),
+  modButtons: document.querySelectorAll('.btn-mod'),
 
   // Loading
   loading: document.getElementById('loading'),
@@ -93,6 +94,11 @@ function setupEventListeners() {
   // YAML editor line numbers
   elements.yamlEditor.addEventListener('input', updateYamlLineNumbers)
   elements.yamlEditor.addEventListener('scroll', syncYamlScroll)
+
+  // Modification gacha buttons
+  elements.modButtons.forEach(btn => {
+    btn.addEventListener('click', () => handleModification(btn.dataset.mod))
+  })
 }
 
 function setupDragAndDrop() {
@@ -283,6 +289,57 @@ async function handleRegenerate() {
   }
 
   await generateImagesFromYaml()
+}
+
+async function handleModification(modificationType) {
+  const geminiKey = elements.geminiKey.value
+  if (!geminiKey) {
+    showNotification('Gemini APIキーを入力してください')
+    return
+  }
+
+  const currentYaml = elements.yamlEditor.value
+  if (!currentYaml) {
+    showNotification('まずYAMLプランを生成してください')
+    return
+  }
+
+  // Disable all modification buttons during processing
+  elements.modButtons.forEach(btn => btn.disabled = true)
+
+  const modificationNames = {
+    'blue': '🔵 青系',
+    'green': '🟢 緑系',
+    'yellow': '🟡 黄色系',
+    'purple': '🟣 紫系',
+    'red': '🔴 赤系',
+    'monochrome': '⚫ モノクロ',
+    'font_bold': '💪 超極太',
+    'font_modern': '✨ モダン',
+    'font_handwritten': '✍️ 手書き',
+    'text_shorter': '⚡ 短く',
+    'text_dramatic': '🔥 ドラマチック',
+    'text_formal': '👔 フォーマル',
+    'layout_compact': '📦 コンパクト',
+    'layout_simple': '🌿 シンプル',
+    'random': '🎰 ランダム'
+  }
+
+  const modName = modificationNames[modificationType] || modificationType
+  showLoading(`${modName}に調整中...`)
+
+  try {
+    const adjustedYaml = await adjustYamlPlan(currentYaml, modificationType, geminiKey)
+    elements.yamlEditor.value = adjustedYaml
+    updateYamlLineNumbers()
+    showNotification(`${modName}に調整しました！ 「再生成」で画像を更新してください`)
+  } catch (error) {
+    showNotification(`調整失敗: ${error.message}`)
+  }
+
+  hideLoading()
+  // Re-enable all modification buttons
+  elements.modButtons.forEach(btn => btn.disabled = false)
 }
 
 async function generateImagesFromYaml() {
