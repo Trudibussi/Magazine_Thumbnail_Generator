@@ -225,11 +225,22 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
  * @returns {string} - The image generation prompt
  */
 function buildImagePrompt(yamlContent) {
+  // Parse YAML to detect font style
+  let fontInstruction = '極太ゴシック体（Sans-serif bold）を使用'
+  
+  if (yamlContent.includes('font: "handwritten"') || yamlContent.includes("font: 'handwritten'")) {
+    fontInstruction = '**手書き風フォント（Handwritten style, casual brush script）を使用。手書きのような不規則な線、自然な傾き、筆跡の変化を表現すること**'
+  } else if (yamlContent.includes('font: "modern"') || yamlContent.includes("font: 'modern'")) {
+    fontInstruction = 'モダンなサンセリフ体（Modern sans-serif, clean and minimal）を使用'
+  } else if (yamlContent.includes('font: "bold"') || yamlContent.includes("font: 'bold'")) {
+    fontInstruction = '超極太ゴシック体（Extra bold sans-serif, maximum impact）を使用'
+  }
+  
   return `あなたは週刊誌の中吊り広告デザイナーです。以下のYAML仕様に基づいて、日本の週刊誌の中吊り広告風のインフォグラフィック画像を生成してください。
 
 ## 重要な指示
 - 日本語テキストを正確に配置すること
-- 極太ゴシック体（Sans-serif bold）を使用
+- ${fontInstruction}
 - 句読点は使用しない
 - 強調キーワードは赤色で表示
 - 背景は薄いクリーム色の紙テクスチャ
