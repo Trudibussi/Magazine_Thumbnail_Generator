@@ -1,6 +1,6 @@
 import './style.css'
 import { fetchUrlContent } from './api/firecrawl.js'
-import { generateYamlPlan, generateImages, adjustYamlPlan } from './api/gemini.js'
+import { generateYamlPlan, generateImages, adjustYamlPlan, convertToVerticalYaml } from './api/gemini.js'
 import { saveApiKeys, loadApiKeys } from './utils/storage.js'
 import * as yaml from 'js-yaml'
 
@@ -324,6 +324,33 @@ async function handleRegenerate() {
   await generateImagesFromYaml()
 }
 
+async function handleVerticalVersion() {
+  const yamlContent = elements.yamlEditor.value.trim()
+  
+  if (!yamlContent) {
+    showNotification('先にYAMLプランを生成してください')
+    return
+  }
+  
+  const geminiKey = getApiKeys().gemini
+  if (!geminiKey) {
+    showNotification('Gemini APIキーを設定してください')
+    return
+  }
+  
+  showNotification('📱 縦書き版YAMLを生成中...', true)
+  
+  try {
+    const verticalYaml = await convertToVerticalYaml(yamlContent, geminiKey)
+    elements.yamlEditor.value = verticalYaml
+    hideNotification()
+    showNotification('縦書き版YAMLを生成しました！「再生成」をクリックして画像を生成してください')
+  } catch (error) {
+    hideNotification()
+    showNotification(`縦書き変換失敗: ${error.message}`)
+  }
+}
+
 async function handleModification(modificationType) {
   const geminiKey = elements.geminiKey.value
   if (!geminiKey) {
@@ -451,7 +478,16 @@ function displayImages(images) {
       downloadImage(imageData, `gen${generationCounter}-img${index + 1}.png`)
     })
 
+    const verticalBtn = document.createElement('button')
+    verticalBtn.className = 'gallery-vertical-btn'
+    verticalBtn.textContent = '📱 縦バージョンを作る'
+    verticalBtn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      handleVerticalVersion()
+    })
+
     overlay.appendChild(downloadBtn)
+    overlay.appendChild(verticalBtn)
     div.appendChild(img)
     div.appendChild(overlay)
     groupGrid.appendChild(div)

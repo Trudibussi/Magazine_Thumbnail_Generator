@@ -1311,3 +1311,34 @@ body {
     padding: var(--space-md);
   }
 }
+
+/* ============================================
+   Vertical Version Button
+   ============================================ */
+
+.gallery-vertical-btn {
+  display: block;
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  margin-top: var(--space-xs);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: var(--color-white);
+  border: 2px solid var(--color-black);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: 2px 2px 0 var(--color-black);
+}
+
+.gallery-vertical-btn:hover {
+  background: linear-gradient(135deg, #357abd 0%, #2868a8 100%);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-black);
+}
+
+.gallery-vertical-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}

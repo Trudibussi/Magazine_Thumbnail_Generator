@@ -214,17 +214,91 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
   const yamlStart = text.indexOf('layout:')
   if (yamlStart !== -1) {
     return text.slice(yamlStart).trim()
+  }  return text.trim()
+}
+
+/**
+ * Convert horizontal YAML plan to vertical (tategaki) version
+ * @param {string} yamlContent - The current horizontal YAML plan
+ * @param {string} apiKey - Gemini API key
+ * @returns {Promise<string>} - The vertical YAML plan
+ */
+export async function convertToVerticalYaml(yamlContent, apiKey) {
+  const systemPrompt = `あなたは週刊誌の縦書きデザインエキスパートです。
+横書きのYAMLプランを、縦書き版に変換してください。
+
+## 縦書きの重要なルール
+- 右から左に読む（重要な情報ほど右側に配置）
+- 重要な情報ほど文字サイズを大きくする
+- テキストは縦書きに適した改行を行う（長すぎる行は分割）
+- カラムレイアウトを想定（右から左に情報が流れる）
+- アスペクト比は縦長（9:16または3:4）を想定
+- layout.orientation を "vertical" に設定すること
+
+## 出力形式
+- YAMLの構造を維持すること
+- 必ず全体のYAMLを出力すること
+- マークダウンのコードブロックで囲むこと（\`\`\`yaml ... \`\`\`）
+- カラー名は英語で指定すること
+
+以下の横書きYAMLを縦書き版に変換してください。`
+
+  const response = await fetch(
+    `${GEMINI_API_URL}/gemini-3-pro-preview:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              { text: systemPrompt },
+              { text: `\n\n## 横書きYAML\n\`\`\`yaml\n${yamlContent}\n\`\`\`` }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 4096,
+        }
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.error?.message || `HTTP ${response.status}: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+  // Extract YAML from markdown code block
+  const yamlMatch = text.match(/```yaml\n([\s\S]*?)```/)
+  if (yamlMatch) {
+    return yamlMatch[1].trim()
+  }
+
+  // Try to extract YAML without code block markers
+  const yamlStart = text.indexOf('layout:')
+  if (yamlStart !== -1) {
+    return text.slice(yamlStart).trim()
   }
 
   return text.trim()
 }
 
 /**
- * Build image generation prompt from YAML plan
- * @param {string} yamlContent - The YAML plan
+ * Build image generation prompt from YAML content * @param {string} yamlContent - The YAML plan
  * @returns {string} - The image generation prompt
  */
 function buildImagePrompt(yamlContent) {
+  // Detect if this is vertical layout
+  const isVertical = yamlContent.includes('orientation: "vertical"') || yamlContent.includes("orientation: 'vertical'")
+  
   // Parse YAML to detect font style
   let fontInstruction = 'すべての日本語テキストを極太ゴシック体（Ultra-bold sans-serif）で描くこと'
   
@@ -234,6 +308,27 @@ function buildImagePrompt(yamlContent) {
     fontInstruction = 'すべての日本語テキストをモダンなサンセリフ体（Modern geometric sans-serif, ultra-clean and minimal）で描くこと'
   } else if (yamlContent.includes('font: "bold"') || yamlContent.includes("font: 'bold'")) {
     fontInstruction = 'すべての日本語テキストを超極太ゴシック体（Extra heavy bold sans-serif, maximum thickness and impact）で描くこと'
+  }
+  
+  if (isVertical) {
+    return `あなたは週刊誌の縦書きデザイナーです。以下のYAML仕様に基づいて、16:9の横長フォーマットで縦書きレイアウトの週刊誌風インフォグラフィック画像を生成してください。
+
+## 縦書きレイアウトの重要な指示
+- **アスペクト比は16:9（横長）を維持すること**
+- **日本語テキストを縦書き（上から下、右から左）で配置すること**
+- **最も重要な情報を右側に配置すること**
+- **重要度に応じて文字サイズを変えること（重要な情報ほど大きく）**
+- 縦書きカラムレイアウトを使用（右から左に情報が流れる）
+- ${fontInstruction}
+- 句読点は使用しない
+- 強調キーワードは赤色で表示
+- 背景は薄いクリーム色の紙テクスチャ
+- プロフェッショナルなグラフィックデザイン品質
+
+## YAML仕様
+${yamlContent}
+
+この仕様に従って、16:9の横長フォーマットで縦書きレイアウトの高品質な週刊誌風サムネイル画像を生成してください。テキストは全て日本語で、縦書きで読みやすく配置してください。`
   }
   
   return `あなたは週刊誌の中吊り広告デザイナーです。以下のYAML仕様に基づいて、日本の週刊誌の中吊り広告風のインフォグラフィック画像を生成してください。
