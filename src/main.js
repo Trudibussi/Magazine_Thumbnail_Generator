@@ -330,7 +330,7 @@ async function handleModification(modificationType) {
   }
 
   const modName = modificationNames[modificationType] || modificationType
-  showLoading(`${modName}に調整中...`)
+  showNotification(`${modName}に調整中...`)
 
   try {
     const adjustedYaml = await adjustYamlPlan(currentYaml, modificationType, geminiKey)
@@ -341,7 +341,6 @@ async function handleModification(modificationType) {
     showNotification(`調整失敗: ${error.message}`)
   }
 
-  hideLoading()
   // Re-enable all modification buttons
   elements.modButtons.forEach(btn => btn.disabled = false)
 }
@@ -362,7 +361,7 @@ async function generateImagesFromYaml() {
 
   showLoading(`画像を生成中... (0/${count})`)
   elements.gallerySection.classList.remove('hidden')
-  elements.gallery.innerHTML = ''
+  // Don't clear gallery - keep previous generations for comparison
 
   try {
     const images = await generateImages(yamlContent, aspectRatio, count, geminiKey, (current) => {
