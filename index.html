@@ -193,6 +193,18 @@
         <p id="loading-text" class="loading-text">処理中...</p>
       </div>
 
+      <!-- Gallery Section -->
+      <section id="gallery-section" class="card card-gallery hidden" data-section="gallery">
+        <div class="card-header">
+          <div class="card-tag">RESULT</div>
+          <h2 class="card-title">生成結果</h2>
+          <span class="result-count" id="result-count"></span>
+        </div>
+        <div class="card-body">
+          <div id="gallery" class="gallery-grid"></div>
+        </div>
+      </section>
+
       <!-- YAML Editor Section -->
       <section id="yaml-section" class="card card-yaml hidden" data-section="yaml">
         <div class="card-header">
@@ -256,18 +268,6 @@
             <textarea id="yaml-editor" class="yaml-editor" spellcheck="false"></textarea>
           </div>
           <p class="card-note">YAMLを直接編集するか、上のボタンでAI自動調整して「再生成」で画像を更新できます</p>
-        </div>
-      </section>
-
-      <!-- Gallery Section -->
-      <section id="gallery-section" class="card card-gallery hidden" data-section="gallery">
-        <div class="card-header">
-          <div class="card-tag">RESULT</div>
-          <h2 class="card-title">生成結果</h2>
-          <span class="result-count" id="result-count"></span>
-        </div>
-        <div class="card-body">
-          <div id="gallery" class="gallery-grid"></div>
         </div>
       </section>
     </main>
