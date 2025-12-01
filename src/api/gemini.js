@@ -207,6 +207,29 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
   // Add variation to the prompt
   const variedPrompt = `${prompt}\n\n[バリエーション ${seed + 1}: 色使いやレイアウトの微調整を加えてください]`
 
+  console.log(`Generating image ${seed + 1} with aspect ratio: ${aspectRatio}`)
+
+  const requestBody = {
+    contents: [
+      {
+        parts: [{ text: variedPrompt }]
+      }
+    ],
+    generationConfig: {
+      responseModalities: ['IMAGE', 'TEXT'],
+    },
+    outputOptions: {
+      mimeType: 'image/png',
+    }
+  }
+
+  // Add image config if supported
+  if (aspectRatio) {
+    requestBody.generationConfig.imageGenerationConfig = {
+      aspectRatio: aspectRatio,
+    }
+  }
+
   const response = await fetch(
     `${GEMINI_API_URL}/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
     {
@@ -214,38 +237,39 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [{ text: variedPrompt }]
-          }
-        ],
-        generationConfig: {
-          imageConfig: {
-            aspectRatio: aspectRatio,
-            imageSize: '2K',
-          },
-        },
-      }),
+      body: JSON.stringify(requestBody),
     }
   )
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}))
+    console.error('API Error:', error)
     throw new Error(error.error?.message || `HTTP ${response.status}: ${response.statusText}`)
   }
 
   const data = await response.json()
+  console.log('API Response:', JSON.stringify(data, null, 2).substring(0, 500))
 
-  // Extract image from response
-  const parts = data.candidates?.[0]?.content?.parts || []
-  for (const part of parts) {
-    if (part.inlineData) {
-      const mimeType = part.inlineData.mimeType || 'image/png'
-      const base64Data = part.inlineData.data
-      return `data:${mimeType};base64,${base64Data}`
+  // Extract image from response - check multiple possible locations
+  const candidates = data.candidates || []
+  for (const candidate of candidates) {
+    const parts = candidate.content?.parts || []
+    for (const part of parts) {
+      // Check for inline data
+      if (part.inlineData) {
+        const mimeType = part.inlineData.mimeType || 'image/png'
+        const base64Data = part.inlineData.data
+        console.log(`Found image data, mime type: ${mimeType}`)
+        return `data:${mimeType};base64,${base64Data}`
+      }
+      // Check for file data
+      if (part.fileData) {
+        console.log('Found file data:', part.fileData)
+      }
     }
   }
 
+  // Log full response for debugging if no image found
+  console.error('No image found in response. Full response:', JSON.stringify(data, null, 2))
   throw new Error('No image data in response')
 }

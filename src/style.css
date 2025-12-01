@@ -917,27 +917,36 @@ body {
   display: flex;
   border: 2px solid var(--color-black);
   background: #1a1a2e;
-  font-family: 'Consolas', 'Monaco', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
   max-height: 500px;
   overflow: hidden;
+  position: relative;
 }
 
 .yaml-line-numbers {
   padding: var(--space-md);
+  padding-right: var(--space-sm);
   background: #12121f;
-  color: var(--color-gray-500);
+  color: #666;
   text-align: right;
   user-select: none;
   border-right: 1px solid #2a2a4a;
-  min-width: 50px;
-  overflow: hidden;
+  min-width: 45px;
+  overflow-y: auto;
+  white-space: pre;
+  scrollbar-width: none;
+}
+
+.yaml-line-numbers::-webkit-scrollbar {
+  display: none;
 }
 
 .yaml-editor {
   flex: 1;
   padding: var(--space-md);
+  padding-left: var(--space-sm);
   background: transparent;
   color: #e0e0e0;
   border: none;
@@ -945,7 +954,10 @@ body {
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
-  overflow: auto;
+  overflow-y: auto;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-x: auto;
 }
 
 .yaml-editor:focus {
