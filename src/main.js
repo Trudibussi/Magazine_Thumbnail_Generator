@@ -246,11 +246,11 @@ async function handleGenerate() {
       return
     }
 
-    showLoading('URLからコンテンツを取得中...')
+    showNotification('URLからコンテンツを取得中...')
     try {
       content = await fetchUrlContent(url, firecrawlKey)
+      showNotification('URLからコンテンツを取得しました')
     } catch (error) {
-      hideLoading()
       showNotification(`取得失敗: ${error.message}`)
       return
     }
@@ -269,14 +269,14 @@ async function handleGenerate() {
   }
 
   // Generate YAML plan
-  showLoading('YAMLプランを生成中...')
+  showNotification('YAMLプランを生成中...')
   try {
     const yamlPlan = await generateYamlPlan(content, geminiKey)
     elements.yamlEditor.value = yamlPlan
     elements.yamlSection.classList.remove('hidden')
     updateYamlLineNumbers()
+    showNotification('YAMLプランを生成しました')
   } catch (error) {
-    hideLoading()
     showNotification(`YAML生成失敗: ${error.message}`)
     return
   }
@@ -359,22 +359,21 @@ async function generateImagesFromYaml() {
     return
   }
 
-  showLoading(`画像を生成中... (0/${count})`)
+  showNotification(`画像を生成中... (0/${count})`)
   elements.gallerySection.classList.remove('hidden')
   // Don't clear gallery - keep previous generations for comparison
 
   try {
     const images = await generateImages(yamlContent, aspectRatio, count, geminiKey, (current) => {
-      elements.loadingText.textContent = `画像を生成中... (${current}/${count})`
+      showNotification(`画像を生成中... (${current}/${count})`)
     })
 
     displayImages(images)
+    showNotification(`${count}枚の画像を生成しました！`)
     // Count is updated by displayImages -> updateGalleryCount
   } catch (error) {
     showNotification(`画像生成失敗: ${error.message}`)
   }
-
-  hideLoading()
 }
 
 let generationCounter = 0
