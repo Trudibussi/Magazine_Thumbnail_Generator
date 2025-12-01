@@ -143,8 +143,20 @@ function handleSaveKeys() {
   showNotification('APIキーを保存しました')
 }
 
-function showNotification(message) {
-  // Simple notification - could be enhanced with a toast component
+let persistentNotification = null
+
+function showNotification(message, persistent = false) {
+  // If there's a persistent notification, update it
+  if (persistent && persistentNotification) {
+    persistentNotification.textContent = message
+    return persistentNotification
+  }
+  
+  // Remove existing persistent notification if creating a new one
+  if (persistent && persistentNotification) {
+    persistentNotification.remove()
+  }
+  
   const notification = document.createElement('div')
   notification.style.cssText = `
     position: fixed;
@@ -162,10 +174,27 @@ function showNotification(message) {
   notification.textContent = message
   document.body.appendChild(notification)
 
+  if (persistent) {
+    persistentNotification = notification
+    return notification
+  }
+
   setTimeout(() => {
     notification.style.animation = 'fadeOut 0.3s ease forwards'
     setTimeout(() => notification.remove(), 300)
   }, 2000)
+}
+
+function hideNotification() {
+  if (persistentNotification) {
+    persistentNotification.style.animation = 'fadeOut 0.3s ease forwards'
+    setTimeout(() => {
+      if (persistentNotification) {
+        persistentNotification.remove()
+        persistentNotification = null
+      }
+    }, 300)
+  }
 }
 
 function toggleApiKeysVisibility() {
@@ -359,19 +388,21 @@ async function generateImagesFromYaml() {
     return
   }
 
-  showNotification(`画像を生成中... (0/${count})`)
+  showNotification(`画像を生成中... (0/${count})`, true)
   elements.gallerySection.classList.remove('hidden')
   // Don't clear gallery - keep previous generations for comparison
 
   try {
     const images = await generateImages(yamlContent, aspectRatio, count, geminiKey, (current) => {
-      showNotification(`画像を生成中... (${current}/${count})`)
+      showNotification(`画像を生成中... (${current}/${count})`, true)
     })
 
+    hideNotification()
     displayImages(images)
     showNotification(`${count}枚の画像を生成しました！`)
     // Count is updated by displayImages -> updateGalleryCount
   } catch (error) {
+    hideNotification()
     showNotification(`画像生成失敗: ${error.message}`)
   }
 }
