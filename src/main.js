@@ -480,7 +480,7 @@ function displayImages(images) {
 
     const verticalBtn = document.createElement('button')
     verticalBtn.className = 'gallery-vertical-btn'
-    verticalBtn.textContent = '📱 縦バージョンを作る'
+    verticalBtn.textContent = '📱 縦書きバージョン生成（α版）'
     verticalBtn.addEventListener('click', (e) => {
       e.stopPropagation()
       handleVerticalVersion()
