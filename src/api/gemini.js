@@ -147,7 +147,7 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
     'monochrome': 'カラースキームをモノクロ系に変更してください。黒、白、グレーのみを使用。強調色は濃いグレー。',
     'font_bold': 'フォントスタイルを「超極太ゴシック体」に変更してください。インパクトを最大化。',
     'font_modern': 'フォントスタイルを「モダンなサンセリフ体」に変更してください。洗練された印象に。',
-    'font_handwritten': 'フォントスタイルを「手書き風」に変更してください。親しみやすい印象に。',
+    'font_handwritten': 'layout.fontを"handwritten"に変更してください。これにより、画像生成時にすべての文字が手書き風フォントで描かれます。',
     'text_shorter': 'テキストをより短く、パンチのある表現に変更してください。各カードのテキストを1行にまとめる。',
     'text_dramatic': 'テキストをよりドラマチックで煙り立てる表現に変更してください。週刊誌の中吊り広告らしく。',
     'text_formal': 'テキストをよりフォーマルで落ち着いた表現に変更してください。ビジネス向けの印象に。',
@@ -226,14 +226,14 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
  */
 function buildImagePrompt(yamlContent) {
   // Parse YAML to detect font style
-  let fontInstruction = '極太ゴシック体（Sans-serif bold）を使用'
+  let fontInstruction = 'すべての日本語テキストを極太ゴシック体（Ultra-bold sans-serif）で描くこと'
   
   if (yamlContent.includes('font: "handwritten"') || yamlContent.includes("font: 'handwritten'")) {
-    fontInstruction = '**手書き風フォント（Handwritten style, casual brush script）を使用。手書きのような不規則な線、自然な傾き、筆跡の変化を表現すること**'
+    fontInstruction = '**すべての日本語テキストを手書き風フォントで描くこと。Handwritten Japanese font with irregular strokes, natural tilt, brush-like texture. ヘッダー、カード、フッターのすべての文字を手書きスタイルで表現する。筆跡のあるラフな書き文字を使う。**'
   } else if (yamlContent.includes('font: "modern"') || yamlContent.includes("font: 'modern'")) {
-    fontInstruction = 'モダンなサンセリフ体（Modern sans-serif, clean and minimal）を使用'
+    fontInstruction = 'すべての日本語テキストをモダンなサンセリフ体（Modern geometric sans-serif, ultra-clean and minimal）で描くこと'
   } else if (yamlContent.includes('font: "bold"') || yamlContent.includes("font: 'bold'")) {
-    fontInstruction = '超極太ゴシック体（Extra bold sans-serif, maximum impact）を使用'
+    fontInstruction = 'すべての日本語テキストを超極太ゴシック体（Extra heavy bold sans-serif, maximum thickness and impact）で描くこと'
   }
   
   return `あなたは週刊誌の中吊り広告デザイナーです。以下のYAML仕様に基づいて、日本の週刊誌の中吊り広告風のインフォグラフィック画像を生成してください。
