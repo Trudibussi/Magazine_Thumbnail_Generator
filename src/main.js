@@ -49,6 +49,7 @@ const elements = {
   gallerySection: document.getElementById('gallery-section'),
   gallery: document.getElementById('gallery'),
   resultCount: document.getElementById('result-count'),
+  clearGalleryBtn: document.getElementById('clear-gallery-btn'),
 }
 
 // State
@@ -99,6 +100,9 @@ function setupEventListeners() {
   elements.modButtons.forEach(btn => {
     btn.addEventListener('click', () => handleModification(btn.dataset.mod))
   })
+
+  // Clear gallery button
+  elements.clearGalleryBtn.addEventListener('click', handleClearGallery)
 }
 
 function setupDragAndDrop() {
@@ -366,7 +370,7 @@ async function generateImagesFromYaml() {
     })
 
     displayImages(images)
-    elements.resultCount.textContent = `${images.length}枚生成`
+    // Count is updated by displayImages -> updateGalleryCount
   } catch (error) {
     showNotification(`画像生成失敗: ${error.message}`)
   }
@@ -374,8 +378,29 @@ async function generateImagesFromYaml() {
   hideLoading()
 }
 
+let generationCounter = 0
+
 function displayImages(images) {
-  elements.gallery.innerHTML = ''
+  // Don't clear gallery - append new images instead
+  generationCounter++
+  
+  // Create a group container for this generation
+  const groupDiv = document.createElement('div')
+  groupDiv.className = 'gallery-group'
+  groupDiv.dataset.generation = generationCounter
+  
+  // Add group header
+  const groupHeader = document.createElement('div')
+  groupHeader.className = 'gallery-group-header'
+  groupHeader.innerHTML = `
+    <span class="gallery-group-label">生成 #${generationCounter}</span>
+    <span class="gallery-group-count">${images.length}枚</span>
+  `
+  groupDiv.appendChild(groupHeader)
+  
+  // Create grid for this group
+  const groupGrid = document.createElement('div')
+  groupGrid.className = 'gallery-grid-inner'
 
   images.forEach((imageData, index) => {
     const div = document.createElement('div')
@@ -383,7 +408,7 @@ function displayImages(images) {
 
     const img = document.createElement('img')
     img.src = imageData
-    img.alt = `Generated thumbnail ${index + 1}`
+    img.alt = `Generation ${generationCounter} - Image ${index + 1}`
     img.loading = 'lazy'
 
     const overlay = document.createElement('div')
@@ -394,14 +419,38 @@ function displayImages(images) {
     downloadBtn.textContent = 'ダウンロード'
     downloadBtn.addEventListener('click', (e) => {
       e.stopPropagation()
-      downloadImage(imageData, `thumbnail-${index + 1}.png`)
+      downloadImage(imageData, `gen${generationCounter}-img${index + 1}.png`)
     })
 
     overlay.appendChild(downloadBtn)
     div.appendChild(img)
     div.appendChild(overlay)
-    elements.gallery.appendChild(div)
+    groupGrid.appendChild(div)
   })
+  
+  groupDiv.appendChild(groupGrid)
+  elements.gallery.appendChild(groupDiv)
+  
+  // Update total count
+  updateGalleryCount()
+}
+
+function updateGalleryCount() {
+  const totalImages = elements.gallery.querySelectorAll('.gallery-item').length
+  elements.resultCount.textContent = `合計 ${totalImages}枚 (生成 ${generationCounter}回)`
+}
+
+function handleClearGallery() {
+  if (elements.gallery.children.length === 0) {
+    return
+  }
+  
+  if (confirm('すべての画像をクリアしますか？')) {
+    elements.gallery.innerHTML = ''
+    generationCounter = 0
+    elements.resultCount.textContent = ''
+    showNotification('ギャラリーをクリアしました')
+  }
 }
 
 function downloadImage(dataUrl, filename) {

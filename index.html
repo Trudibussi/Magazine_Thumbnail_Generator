@@ -160,10 +160,10 @@
                 <span class="option-value" id="count-value">4</span>枚
               </label>
               <div class="slider-wrapper">
-                <input type="range" id="generation-count" class="slider" min="4" max="10" value="4" />
+                <input type="range" id="generation-count" class="slider" min="1" max="10" value="4" />
                 <div class="slider-track"></div>
                 <div class="slider-labels">
-                  <span>4</span>
+                  <span>1</span>
                   <span>10</span>
                 </div>
               </div>
@@ -198,7 +198,13 @@
         <div class="card-header">
           <div class="card-tag">RESULT</div>
           <h2 class="card-title">生成結果</h2>
-          <span class="result-count" id="result-count"></span>
+          <div class="gallery-header-actions">
+            <span class="result-count" id="result-count"></span>
+            <button id="clear-gallery-btn" class="btn btn-secondary btn-small">
+              <span class="btn-icon">🗑️</span>
+              <span class="btn-text">クリア</span>
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div id="gallery" class="gallery-grid"></div>
