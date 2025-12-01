@@ -14,7 +14,7 @@ const elements = {
   apiKeysForm: document.getElementById('api-keys-form'),
 
   // Input tabs
-  inputTabs: document.querySelectorAll('.input-tab'),
+  tabs: document.querySelectorAll('.tab'),
   urlInput: document.getElementById('url-input'),
   fileInput: document.getElementById('file-input'),
   textInput: document.getElementById('text-input'),
@@ -22,6 +22,7 @@ const elements = {
   // Input fields
   urlField: document.getElementById('url-field'),
   fileField: document.getElementById('file-field'),
+  fileDropZone: document.getElementById('file-drop-zone'),
   fileName: document.getElementById('file-name'),
   textField: document.getElementById('text-field'),
 
@@ -37,6 +38,7 @@ const elements = {
   // YAML
   yamlSection: document.getElementById('yaml-section'),
   yamlEditor: document.getElementById('yaml-editor'),
+  yamlLineNumbers: document.getElementById('yaml-line-numbers'),
 
   // Loading
   loading: document.getElementById('loading'),
@@ -45,6 +47,7 @@ const elements = {
   // Gallery
   gallerySection: document.getElementById('gallery-section'),
   gallery: document.getElementById('gallery'),
+  resultCount: document.getElementById('result-count'),
 }
 
 // State
@@ -55,6 +58,7 @@ let fileContent = null
 function init() {
   loadSavedKeys()
   setupEventListeners()
+  updateYamlLineNumbers()
 }
 
 function loadSavedKeys() {
@@ -69,12 +73,13 @@ function setupEventListeners() {
   elements.toggleApiKeys.addEventListener('click', toggleApiKeysVisibility)
 
   // Input tabs
-  elements.inputTabs.forEach(tab => {
+  elements.tabs.forEach(tab => {
     tab.addEventListener('click', () => switchTab(tab.dataset.tab))
   })
 
-  // File input
+  // File input with drag and drop
   elements.fileField.addEventListener('change', handleFileSelect)
+  setupDragAndDrop()
 
   // Generation count slider
   elements.generationCount.addEventListener('input', (e) => {
@@ -84,6 +89,40 @@ function setupEventListeners() {
   // Generate button
   elements.generateBtn.addEventListener('click', handleGenerate)
   elements.regenerateBtn.addEventListener('click', handleRegenerate)
+
+  // YAML editor line numbers
+  elements.yamlEditor.addEventListener('input', updateYamlLineNumbers)
+  elements.yamlEditor.addEventListener('scroll', syncYamlScroll)
+}
+
+function setupDragAndDrop() {
+  const dropZone = elements.fileDropZone
+
+  ;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+    })
+  })
+
+  ;['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.add('dragover')
+    })
+  })
+
+  ;['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, () => {
+      dropZone.classList.remove('dragover')
+    })
+  })
+
+  dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      handleFileLoad(files[0])
+    }
+  })
 }
 
 function handleSaveKeys() {
@@ -91,48 +130,94 @@ function handleSaveKeys() {
     firecrawl: elements.firecrawlKey.value,
     gemini: elements.geminiKey.value,
   })
-  alert('APIキーを保存しました')
+  showNotification('APIキーを保存しました')
+}
+
+function showNotification(message) {
+  // Simple notification - could be enhanced with a toast component
+  const notification = document.createElement('div')
+  notification.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #0a0a0a;
+    color: #ffd700;
+    padding: 12px 24px;
+    font-weight: 700;
+    border: 2px solid #0a0a0a;
+    box-shadow: 4px 4px 0 #0a0a0a;
+    z-index: 1000;
+    animation: slideIn 0.3s ease;
+  `
+  notification.textContent = message
+  document.body.appendChild(notification)
+
+  setTimeout(() => {
+    notification.style.animation = 'fadeOut 0.3s ease forwards'
+    setTimeout(() => notification.remove(), 300)
+  }, 2000)
 }
 
 function toggleApiKeysVisibility() {
   const form = elements.apiKeysForm
-  form.classList.toggle('hidden')
+  const btn = elements.toggleApiKeys
+  const isHidden = form.classList.toggle('hidden')
+  btn.setAttribute('aria-expanded', !isHidden)
 }
 
 function switchTab(tab) {
   currentTab = tab
 
   // Update tab styles
-  elements.inputTabs.forEach(t => {
-    t.classList.toggle('active', t.dataset.tab === tab)
-    t.classList.toggle('text-gray-500', t.dataset.tab !== tab)
-    t.classList.toggle('text-blue-600', t.dataset.tab === tab)
-    t.classList.toggle('border-blue-500', t.dataset.tab === tab)
-    t.classList.toggle('border-transparent', t.dataset.tab !== tab)
+  elements.tabs.forEach(t => {
+    const isActive = t.dataset.tab === tab
+    t.classList.toggle('active', isActive)
+    t.setAttribute('aria-selected', isActive)
   })
 
   // Show/hide content
-  elements.urlInput.classList.toggle('hidden', tab !== 'url')
-  elements.fileInput.classList.toggle('hidden', tab !== 'file')
-  elements.textInput.classList.toggle('hidden', tab !== 'text')
+  document.querySelectorAll('.tab-content').forEach(content => {
+    content.classList.remove('active')
+  })
+  document.getElementById(`${tab}-input`).classList.add('active')
 }
 
 function handleFileSelect(e) {
   const file = e.target.files[0]
   if (file) {
-    elements.fileName.textContent = file.name
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      fileContent = event.target.result
-    }
-    reader.readAsText(file)
+    handleFileLoad(file)
   }
+}
+
+function handleFileLoad(file) {
+  // Validate file type
+  if (!file.name.match(/\.(txt|md)$/i)) {
+    showNotification('対応形式: .txt, .md')
+    return
+  }
+
+  elements.fileName.textContent = `選択: ${file.name}`
+  const reader = new FileReader()
+  reader.onload = (event) => {
+    fileContent = event.target.result
+  }
+  reader.readAsText(file)
+}
+
+function updateYamlLineNumbers() {
+  const lines = elements.yamlEditor.value.split('\n').length
+  const lineNumbers = Array.from({ length: lines }, (_, i) => i + 1).join('\n')
+  elements.yamlLineNumbers.textContent = lineNumbers
+}
+
+function syncYamlScroll() {
+  elements.yamlLineNumbers.scrollTop = elements.yamlEditor.scrollTop
 }
 
 async function handleGenerate() {
   const geminiKey = elements.geminiKey.value
   if (!geminiKey) {
-    alert('Gemini APIキーを入力してください')
+    showNotification('Gemini APIキーを入力してください')
     return
   }
 
@@ -142,12 +227,12 @@ async function handleGenerate() {
   if (currentTab === 'url') {
     const url = elements.urlField.value
     if (!url) {
-      alert('URLを入力してください')
+      showNotification('URLを入力してください')
       return
     }
     const firecrawlKey = elements.firecrawlKey.value
     if (!firecrawlKey) {
-      alert('Firecrawl APIキーを入力してください')
+      showNotification('Firecrawl APIキーを入力してください')
       return
     }
 
@@ -156,19 +241,19 @@ async function handleGenerate() {
       content = await fetchUrlContent(url, firecrawlKey)
     } catch (error) {
       hideLoading()
-      alert(`URLの取得に失敗しました: ${error.message}`)
+      showNotification(`取得失敗: ${error.message}`)
       return
     }
   } else if (currentTab === 'file') {
     if (!fileContent) {
-      alert('ファイルを選択してください')
+      showNotification('ファイルを選択してください')
       return
     }
     content = fileContent
   } else if (currentTab === 'text') {
     content = elements.textField.value
     if (!content) {
-      alert('テキストを入力してください')
+      showNotification('テキストを入力してください')
       return
     }
   }
@@ -179,9 +264,10 @@ async function handleGenerate() {
     const yamlPlan = await generateYamlPlan(content, geminiKey)
     elements.yamlEditor.value = yamlPlan
     elements.yamlSection.classList.remove('hidden')
+    updateYamlLineNumbers()
   } catch (error) {
     hideLoading()
-    alert(`YAMLプランの生成に失敗しました: ${error.message}`)
+    showNotification(`YAML生成失敗: ${error.message}`)
     return
   }
 
@@ -192,7 +278,7 @@ async function handleGenerate() {
 async function handleRegenerate() {
   const geminiKey = elements.geminiKey.value
   if (!geminiKey) {
-    alert('Gemini APIキーを入力してください')
+    showNotification('Gemini APIキーを入力してください')
     return
   }
 
@@ -209,7 +295,7 @@ async function generateImagesFromYaml() {
   try {
     yaml.load(yamlContent)
   } catch (error) {
-    alert(`YAMLの形式が正しくありません: ${error.message}`)
+    showNotification(`YAML形式エラー: ${error.message}`)
     return
   }
 
@@ -223,8 +309,9 @@ async function generateImagesFromYaml() {
     })
 
     displayImages(images)
+    elements.resultCount.textContent = `${images.length}枚生成`
   } catch (error) {
-    alert(`画像の生成に失敗しました: ${error.message}`)
+    showNotification(`画像生成失敗: ${error.message}`)
   }
 
   hideLoading()
@@ -235,18 +322,18 @@ function displayImages(images) {
 
   images.forEach((imageData, index) => {
     const div = document.createElement('div')
-    div.className = 'gallery-item relative rounded-lg overflow-hidden shadow-md'
+    div.className = 'gallery-item'
 
     const img = document.createElement('img')
     img.src = imageData
     img.alt = `Generated thumbnail ${index + 1}`
-    img.className = 'w-full h-auto'
+    img.loading = 'lazy'
 
     const overlay = document.createElement('div')
-    overlay.className = 'absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 hover:opacity-100'
+    overlay.className = 'gallery-item-overlay'
 
     const downloadBtn = document.createElement('button')
-    downloadBtn.className = 'bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition'
+    downloadBtn.className = 'gallery-download-btn'
     downloadBtn.textContent = 'ダウンロード'
     downloadBtn.addEventListener('click', (e) => {
       e.stopPropagation()
@@ -281,6 +368,20 @@ function hideLoading() {
   elements.generateBtn.disabled = false
   elements.regenerateBtn.disabled = false
 }
+
+// Add animation keyframes dynamically
+const style = document.createElement('style')
+style.textContent = `
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+`
+document.head.appendChild(style)
 
 // Start the app
 init()

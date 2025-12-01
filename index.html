@@ -3,125 +3,232 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>週刊誌風サムネイルジェネレーター</title>
+  <title>週刊誌風サムネイル製造機</title>
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700;900&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen">
-  <div id="app" class="container mx-auto px-4 py-8 max-w-7xl">
-    <!-- Header -->
-    <header class="mb-8 text-center">
-      <h1 class="text-3xl font-bold text-gray-800 mb-2">週刊誌風サムネイルジェネレーター</h1>
-      <p class="text-gray-600">ニュースやテキストを中吊り広告風サムネイルに変換</p>
+<body>
+  <!-- Decorative Background Elements -->
+  <div class="bg-pattern"></div>
+  <div class="bg-noise"></div>
+
+  <div id="app">
+    <!-- Header Banner -->
+    <header class="main-header">
+      <div class="header-inner">
+        <div class="header-accent-line"></div>
+        <div class="header-content">
+          <span class="header-tag">【自動生成】</span>
+          <h1 class="main-title">
+            <span class="title-sub">ニュースを一発変換！</span>
+            <span class="title-main">週刊誌風<br class="sp-only">サムネイル製造機</span>
+          </h1>
+          <p class="header-desc">URLを入れるだけで"あの"中吊り広告風画像を量産</p>
+        </div>
+        <div class="header-accent-line"></div>
+      </div>
     </header>
 
-    <!-- API Keys Section -->
-    <section id="api-keys-section" class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-        <span>🔑</span> API設定
-        <button id="toggle-api-keys" class="ml-auto text-sm text-blue-600 hover:text-blue-800">表示/非表示</button>
-      </h2>
-      <div id="api-keys-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Firecrawl API Key</label>
-          <input type="password" id="firecrawl-key" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="fc-..." />
+    <main class="main-content">
+      <!-- API Keys Section -->
+      <section class="card card-api" data-section="api">
+        <div class="card-header">
+          <div class="card-tag">SETUP</div>
+          <h2 class="card-title">API設定</h2>
+          <button id="toggle-api-keys" class="toggle-btn" aria-label="表示切替">
+            <span class="toggle-icon"></span>
+          </button>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Gemini API Key</label>
-          <input type="password" id="gemini-key" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="AIza..." />
+        <div id="api-keys-form" class="card-body">
+          <div class="input-grid">
+            <div class="input-group">
+              <label class="input-label">
+                <span class="label-text">Firecrawl API Key</span>
+                <span class="label-hint">URL取得用</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="firecrawl-key" class="text-input" placeholder="fc-xxxxxxxx" />
+                <div class="input-accent"></div>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">
+                <span class="label-text">Gemini API Key</span>
+                <span class="label-hint">AI処理用</span>
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="gemini-key" class="text-input" placeholder="AIzaxxxxxxxxx" />
+                <div class="input-accent"></div>
+              </div>
+            </div>
+            <div class="input-group input-group-btn">
+              <button id="save-keys" class="btn btn-secondary">
+                <span class="btn-text">キーを保存</span>
+              </button>
+            </div>
+          </div>
+          <p class="card-note">※ APIキーはお使いのブラウザにのみ保存されます</p>
         </div>
-        <div class="flex items-end">
-          <button id="save-keys" class="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition">キーを保存</button>
+      </section>
+
+      <!-- Input Section -->
+      <section class="card card-input" data-section="input">
+        <div class="card-header">
+          <div class="card-tag">INPUT</div>
+          <h2 class="card-title">ネタを入力</h2>
         </div>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">※ APIキーはブラウザのlocalStorageにのみ保存されます</p>
-    </section>
+        <div class="card-body">
+          <!-- Input Tabs -->
+          <div class="tab-container">
+            <div class="tab-list" role="tablist">
+              <button class="tab active" data-tab="url" role="tab" aria-selected="true">
+                <span class="tab-icon">🔗</span>
+                <span class="tab-text">URL</span>
+              </button>
+              <button class="tab" data-tab="file" role="tab" aria-selected="false">
+                <span class="tab-icon">📄</span>
+                <span class="tab-text">ファイル</span>
+              </button>
+              <button class="tab" data-tab="text" role="tab" aria-selected="false">
+                <span class="tab-icon">✏️</span>
+                <span class="tab-text">テキスト</span>
+              </button>
+            </div>
+            <div class="tab-indicator"></div>
+          </div>
 
-    <!-- Input Section -->
-    <section class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">📝 入力</h2>
+          <!-- Tab Contents -->
+          <div class="tab-contents">
+            <div id="url-input" class="tab-content active">
+              <div class="input-wrapper input-wrapper-large">
+                <input type="url" id="url-field" class="text-input text-input-large" placeholder="https://example.com/news/article" />
+                <div class="input-accent"></div>
+              </div>
+              <p class="input-hint">ニュース記事のURLを入力してください</p>
+            </div>
 
-      <!-- Input Tabs -->
-      <div class="flex border-b border-gray-200 mb-4">
-        <button class="input-tab active px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600" data-tab="url">URL</button>
-        <button class="input-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="file">ファイル</button>
-        <button class="input-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="text">テキスト</button>
-      </div>
+            <div id="file-input" class="tab-content">
+              <div class="file-drop-zone" id="file-drop-zone">
+                <input type="file" id="file-field" accept=".txt,.md" class="file-input-hidden" />
+                <div class="file-drop-content">
+                  <div class="file-drop-icon">📁</div>
+                  <p class="file-drop-text">ファイルをドロップ<br>または<span class="file-drop-link">クリックして選択</span></p>
+                  <p class="file-drop-hint">.txt / .md 対応</p>
+                </div>
+                <p id="file-name" class="file-selected"></p>
+              </div>
+            </div>
 
-      <!-- URL Input -->
-      <div id="url-input" class="input-content">
-        <input type="url" id="url-field" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/article" />
-      </div>
-
-      <!-- File Input -->
-      <div id="file-input" class="input-content hidden">
-        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-          <input type="file" id="file-field" accept=".txt,.md" class="hidden" />
-          <label for="file-field" class="cursor-pointer">
-            <span class="text-gray-600">クリックしてファイルを選択</span>
-            <span class="block text-sm text-gray-400 mt-1">(.txt, .md)</span>
-          </label>
-          <p id="file-name" class="mt-2 text-sm text-blue-600"></p>
+            <div id="text-input" class="tab-content">
+              <div class="textarea-wrapper">
+                <textarea id="text-field" class="textarea" rows="6" placeholder="ニュース記事やテキストをここに貼り付け..."></textarea>
+                <div class="textarea-accent"></div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Text Input -->
-      <div id="text-input" class="input-content hidden">
-        <textarea id="text-field" rows="6" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ニュース記事やテキストをここに貼り付け..."></textarea>
-      </div>
-    </section>
-
-    <!-- Options Section -->
-    <section class="bg-white rounded-lg shadow-md p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">⚙️ オプション</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">アスペクト比</label>
-          <select id="aspect-ratio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="1:1.91">1:1.91 (OGP)</option>
-            <option value="16:9">16:9 (YouTube)</option>
-            <option value="1:1">1:1 (Instagram)</option>
-            <option value="4:5">4:5 (Instagram縦)</option>
-            <option value="9:16">9:16 (ストーリーズ)</option>
-          </select>
+      <!-- Options Section -->
+      <section class="card card-options" data-section="options">
+        <div class="card-header">
+          <div class="card-tag">OPTIONS</div>
+          <h2 class="card-title">生成設定</h2>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">生成枚数: <span id="count-value">4</span>枚</label>
-          <input type="range" id="generation-count" min="4" max="10" value="4" class="w-full" />
+        <div class="card-body">
+          <div class="options-grid">
+            <div class="option-group">
+              <label class="option-label">アスペクト比</label>
+              <div class="select-wrapper">
+                <select id="aspect-ratio" class="select-input">
+                  <option value="1:1.91">1:1.91 — OGP画像</option>
+                  <option value="16:9">16:9 — YouTube</option>
+                  <option value="1:1">1:1 — Instagram正方形</option>
+                  <option value="4:5">4:5 — Instagram縦</option>
+                  <option value="9:16">9:16 — ストーリーズ</option>
+                </select>
+                <div class="select-arrow"></div>
+              </div>
+            </div>
+            <div class="option-group">
+              <label class="option-label">
+                生成枚数ガチャ
+                <span class="option-value" id="count-value">4</span>枚
+              </label>
+              <div class="slider-wrapper">
+                <input type="range" id="generation-count" class="slider" min="4" max="10" value="4" />
+                <div class="slider-track"></div>
+                <div class="slider-labels">
+                  <span>4</span>
+                  <span>10</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <!-- Generate Button -->
+      <div class="generate-section">
+        <button id="generate-btn" class="btn-generate">
+          <span class="btn-generate-bg"></span>
+          <span class="btn-generate-content">
+            <span class="btn-generate-icon">⚡</span>
+            <span class="btn-generate-text">サムネイルを生成</span>
+          </span>
+        </button>
       </div>
-    </section>
 
-    <!-- Generate Button -->
-    <div class="text-center mb-6">
-      <button id="generate-btn" class="bg-red-600 text-white text-xl font-bold py-4 px-12 rounded-lg hover:bg-red-700 transition shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed">
-        サムネイルを生成
-      </button>
-    </div>
+      <!-- Loading Indicator -->
+      <div id="loading" class="loading-container hidden">
+        <div class="loading-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+        <p id="loading-text" class="loading-text">処理中...</p>
+      </div>
 
-    <!-- YAML Editor Section -->
-    <section id="yaml-section" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
-      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-        📄 YAMLプラン
-        <button id="regenerate-btn" class="ml-auto bg-blue-600 text-white text-sm py-2 px-4 rounded-md hover:bg-blue-700 transition">YAMLから再生成</button>
-      </h2>
-      <textarea id="yaml-editor" rows="20" class="w-full px-3 py-2 border border-gray-300 rounded-md font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"></textarea>
-    </section>
+      <!-- YAML Editor Section -->
+      <section id="yaml-section" class="card card-yaml hidden" data-section="yaml">
+        <div class="card-header">
+          <div class="card-tag">EDIT</div>
+          <h2 class="card-title">YAMLプラン</h2>
+          <button id="regenerate-btn" class="btn btn-primary">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-text">再生成</span>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="yaml-editor-wrapper">
+            <div class="yaml-line-numbers" id="yaml-line-numbers"></div>
+            <textarea id="yaml-editor" class="yaml-editor" spellcheck="false"></textarea>
+          </div>
+          <p class="card-note">YAMLを編集して「再生成」で画像を更新できます</p>
+        </div>
+      </section>
 
-    <!-- Loading Indicator -->
-    <div id="loading" class="hidden text-center py-8">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
-      <p id="loading-text" class="mt-4 text-gray-600">処理中...</p>
-    </div>
-
-    <!-- Gallery Section -->
-    <section id="gallery-section" class="bg-white rounded-lg shadow-md p-6 hidden">
-      <h2 class="text-xl font-semibold mb-4">🖼️ 生成結果</h2>
-      <div id="gallery" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-    </section>
+      <!-- Gallery Section -->
+      <section id="gallery-section" class="card card-gallery hidden" data-section="gallery">
+        <div class="card-header">
+          <div class="card-tag">RESULT</div>
+          <h2 class="card-title">生成結果</h2>
+          <span class="result-count" id="result-count"></span>
+        </div>
+        <div class="card-body">
+          <div id="gallery" class="gallery-grid"></div>
+        </div>
+      </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="text-center mt-8 text-gray-500 text-sm">
-      <p>Magazine Thumbnail Generator - 静的サイトとしてデプロイ可能</p>
+    <footer class="main-footer">
+      <div class="footer-content">
+        <p class="footer-text">Magazine Thumbnail Generator</p>
+        <p class="footer-sub">静的サイトとしてデプロイ可能 — APIキーはサーバーに送信されません</p>
+      </div>
     </footer>
   </div>
 
