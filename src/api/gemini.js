@@ -83,7 +83,7 @@ footer:
  */
 export async function generateYamlPlan(content, apiKey) {
   const response = await fetch(
-    `${GEMINI_API_URL}/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    `${GEMINI_API_URL}/gemini-3-pro-preview:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: {
@@ -208,7 +208,7 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
   const variedPrompt = `${prompt}\n\n[バリエーション ${seed + 1}: 色使いやレイアウトの微調整を加えてください]`
 
   const response = await fetch(
-    `${GEMINI_API_URL}/gemini-2.0-flash-exp-image-generation:generateContent?key=${apiKey}`,
+    `${GEMINI_API_URL}/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: {
@@ -221,7 +221,10 @@ async function generateSingleImage(prompt, aspectRatio, apiKey, seed) {
           }
         ],
         generationConfig: {
-          responseModalities: ['TEXT', 'IMAGE'],
+          imageConfig: {
+            aspectRatio: aspectRatio,
+            imageSize: '2K',
+          },
         },
       }),
     }
