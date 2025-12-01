@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* Custom styles for the magazine thumbnail generator */
+
+.input-tab {
+  transition: all 0.2s ease;
+}
+
+.input-tab.active {
+  border-bottom-width: 2px;
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.input-tab:not(.active) {
+  border-bottom-width: 2px;
+  border-color: transparent;
+}
+
+/* YAML Editor syntax highlighting placeholder */
+#yaml-editor {
+  line-height: 1.5;
+  tab-size: 2;
+}
+
+/* Gallery image hover effect */
+.gallery-item {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.gallery-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading animation */
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.loading-text-pulse {
+  animation: pulse-text 1.5s ease-in-out infinite;
+}
+
+/* Custom scrollbar for YAML editor */
+#yaml-editor::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#yaml-editor::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#yaml-editor::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+#yaml-editor::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
