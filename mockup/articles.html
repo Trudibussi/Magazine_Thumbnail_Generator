@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>政策解説メディア - Regulatory Quick Scan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1e429f;
+      --primary-light: #e1effe;
+      --secondary: #0e9f6e;
+      --accent: #ff5a1f;
+      --warning: #faca15;
+      --danger: #f05252;
+      --text: #111827;
+      --text-secondary: #6b7280;
+      --bg: #f9fafb;
+      --white: #ffffff;
+      --border: #e5e7eb;
+      --gradient: linear-gradient(135deg, #1a56db 0%, #3b82f6 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    /* Header */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26, 86, 219, 0.4);
+    }
+
+    /* Page Header */
+    .page-header {
+      background: var(--white);
+      padding: 7rem 2rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 3rem;
+    }
+
+    /* Articles */
+    .articles-section {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .article-card {
+      background: var(--white);
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .article-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-card-inner {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 1.5rem;
+    }
+
+    .article-thumbnail {
+      background: var(--gradient);
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+      font-size: 3rem;
+    }
+
+    .article-content {
+      padding: 1.5rem 1.5rem 1.5rem 0;
+    }
+
+    .article-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-category {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .article-date {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .article-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      line-height: 1.5;
+    }
+
+    .article-excerpt {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .sidebar-widget {
+      background: var(--white);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .widget-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .category-list {
+      list-style: none;
+    }
+
+    .category-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .category-item:last-child {
+      border-bottom: none;
+    }
+
+    .category-link {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .category-link:hover {
+      color: var(--primary);
+    }
+
+    .category-count {
+      background: var(--bg);
+      padding: 0.125rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* CTA Widget */
+    .cta-widget {
+      background: var(--gradient);
+      color: var(--white);
+    }
+
+    .cta-widget .widget-title {
+      color: var(--white);
+      border-bottom-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .cta-text {
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .cta-widget .btn {
+      width: 100%;
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    /* Popular Articles */
+    .popular-list {
+      list-style: none;
+    }
+
+    .popular-item {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .popular-item:last-child {
+      border-bottom: none;
+    }
+
+    .popular-link {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .popular-link:hover {
+      color: var(--primary);
+    }
+
+    .popular-number {
+      background: var(--primary);
+      color: var(--white);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .popular-title {
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--text);
+      color: var(--white);
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .footer-text {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .article-card-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .article-thumbnail {
+        height: 120px;
+      }
+
+      .article-content {
+        padding: 1.5rem;
+      }
+
+      .nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Regulatory Quick Scan</a>
+      <nav class="nav">
+        <a href="index.html" class="nav-link">サービス概要</a>
+        <a href="articles.html" class="nav-link active">政策解説メディア</a>
+        <a href="form.html" class="btn btn-primary">無料相談</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="page-header-inner">
+      <h1 class="page-title">政策解説メディア</h1>
+      <p class="page-subtitle">スタートアップが知っておくべき規制動向をわかりやすく解説</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Articles -->
+    <section class="articles-section">
+      <a href="article-detail.html" class="article-card">
+        <div class="article-card-inner">
+          <div class="article-thumbnail">🚗</div>
+          <div class="article-content">
+            <div class="article-meta">
+              <span class="article-category">運輸・交通</span>
+              <span class="article-date">2024年12月1日</span>
+            </div>
+            <h2 class="article-title">ライドシェア全面解禁に向けた議論の現在地——2025年に向けて何が変わるのか</h2>
+            <p class="article-excerpt">2024年に限定解禁されたライドシェア。全面解禁に向けた議論はどこまで進んでいるのか。主要論点と今後のスケジュールを解説します。</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="article-card">
+        <div class="article-card-inner">
+          <div class="article-thumbnail">🚁</div>
+          <div class="article-content">
+            <div class="article-meta">
+              <span class="article-category">運輸・交通</span>
+              <span class="article-date">2024年11月28日</span>
+            </div>
+            <h2 class="article-title">ドローン配送「レベル4」解禁後の実態——本当に都市部で飛べるのか</h2>
+            <p class="article-excerpt">2022年12月にレベル4（有人地帯での目視外飛行）が解禁されましたが、実際に都市部で運用されている事例はまだ少数です。その理由と今後の展望を解説。</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="article-card">
+        <div class="article-card-inner">
+          <div class="article-thumbnail">🤖</div>
+          <div class="article-content">
+            <div class="article-meta">
+              <span class="article-category">データ・AI</span>
+              <span class="article-date">2024年11月25日</span>
+            </div>
+            <h2 class="article-title">EU AI規制法が日本のスタートアップに与える影響——域外適用に備えよ</h2>
+            <p class="article-excerpt">2024年8月に発効したEU AI法。日本企業にも適用される可能性があります。どのような事業が対象となるのか、リスクレベル別に解説します。</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="article-card">
+        <div class="article-card-inner">
+          <div class="article-thumbnail">💰</div>
+          <div class="article-content">
+            <div class="article-meta">
+              <span class="article-category">金融・フィンテック</span>
+              <span class="article-date">2024年11月20日</span>
+            </div>
+            <h2 class="article-title">ステーブルコイン規制の最新動向——改正資金決済法で何が変わったか</h2>
+            <p class="article-excerpt">2023年6月施行の改正資金決済法でステーブルコインの発行・流通が解禁されました。ライセンス取得の要件と今後の課題を整理します。</p>
+          </div>
+        </div>
+      </a>
+
+      <a href="#" class="article-card">
+        <div class="article-card-inner">
+          <div class="article-thumbnail">🏥</div>
+          <div class="article-content">
+            <div class="article-meta">
+              <span class="article-category">医療・ヘルスケア</span>
+              <span class="article-date">2024年11月15日</span>
+            </div>
+            <h2 class="article-title">オンライン診療の規制緩和——恒久化後の現状と残る課題</h2>
+            <p class="article-excerpt">コロナ禍で特例的に認められたオンライン診療の初診解禁。恒久化された現在、どのような制限が残っているのかを解説します。</p>
+          </div>
+        </div>
+      </a>
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <!-- CTA Widget -->
+      <div class="sidebar-widget cta-widget">
+        <h3 class="widget-title">あなたの事業は？</h3>
+        <p class="cta-text">一般論ではなく「貴社の事業」に対するリスク診断を。最短3営業日でお届けします。</p>
+        <a href="form.html" class="btn">無料で診断依頼</a>
+      </div>
+
+      <!-- Categories -->
+      <div class="sidebar-widget">
+        <h3 class="widget-title">カテゴリ</h3>
+        <ul class="category-list">
+          <li class="category-item">
+            <a href="#" class="category-link">
+              運輸・交通
+              <span class="category-count">12</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a href="#" class="category-link">
+              金融・フィンテック
+              <span class="category-count">8</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a href="#" class="category-link">
+              医療・ヘルスケア
+              <span class="category-count">6</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a href="#" class="category-link">
+              データ・AI
+              <span class="category-count">10</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a href="#" class="category-link">
+              不動産・建築
+              <span class="category-count">4</span>
+            </a>
+          </li>
+          <li class="category-item">
+            <a href="#" class="category-link">
+              エネルギー・環境
+              <span class="category-count">5</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Popular Articles -->
+      <div class="sidebar-widget">
+        <h3 class="widget-title">人気記事</h3>
+        <ul class="popular-list">
+          <li class="popular-item">
+            <a href="#" class="popular-link">
+              <span class="popular-number">1</span>
+              <span class="popular-title">ライドシェア全面解禁に向けた議論の現在地</span>
+            </a>
+          </li>
+          <li class="popular-item">
+            <a href="#" class="popular-link">
+              <span class="popular-number">2</span>
+              <span class="popular-title">EU AI規制法が日本企業に与える影響</span>
+            </a>
+          </li>
+          <li class="popular-item">
+            <a href="#" class="popular-link">
+              <span class="popular-number">3</span>
+              <span class="popular-title">ドローン配送レベル4解禁後の実態</span>
+            </a>
+          </li>
+          <li class="popular-item">
+            <a href="#" class="popular-link">
+              <span class="popular-number">4</span>
+              <span class="popular-title">改正資金決済法とステーブルコイン</span>
+            </a>
+          </li>
+          <li class="popular-item">
+            <a href="#" class="popular-link">
+              <span class="popular-number">5</span>
+              <span class="popular-title">民泊新法施行から5年の振り返り</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p class="footer-text">© 2024 Regulatory Quick Scan. All rights reserved.</p>
+  </footer>
+</body>
+</html>

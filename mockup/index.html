@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Regulatory Quick Scan - AI×エキスパート ハイブリッド型PAリサーチサービス</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a56db;
+      --primary-dark: #1e429f;
+      --primary-light: #e1effe;
+      --secondary: #0e9f6e;
+      --accent: #ff5a1f;
+      --warning: #faca15;
+      --danger: #f05252;
+      --text: #111827;
+      --text-secondary: #6b7280;
+      --bg: #f9fafb;
+      --white: #ffffff;
+      --border: #e5e7eb;
+      --gradient: linear-gradient(135deg, #1a56db 0%, #3b82f6 100%);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+    }
+
+    /* Header */
+    .header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .nav {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--primary);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(26, 86, 219, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: var(--gradient);
+      padding: 8rem 2rem 5rem;
+      color: var(--white);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-bottom: 1.5rem;
+      max-width: 700px;
+    }
+
+    .hero-subtitle {
+      font-size: 1.125rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero .btn-primary {
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    .hero .btn-outline {
+      border-color: var(--white);
+      color: var(--white);
+    }
+
+    .hero .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      opacity: 0.8;
+    }
+
+    /* Section */
+    .section {
+      padding: 5rem 2rem;
+    }
+
+    .section-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-tag {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Problem Section */
+    .problem-section {
+      background: var(--white);
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+    }
+
+    .problem-card {
+      padding: 2rem;
+      background: var(--bg);
+      border-radius: 1rem;
+      border-left: 4px solid var(--danger);
+    }
+
+    .problem-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .problem-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .problem-desc {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Solution Section */
+    .solution-section {
+      background: linear-gradient(180deg, var(--bg) 0%, var(--white) 100%);
+    }
+
+    .solution-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .solution-box {
+      background: var(--white);
+      border: 2px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      text-align: center;
+      min-width: 200px;
+    }
+
+    .solution-box-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .solution-box-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .solution-box-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .solution-plus {
+      font-size: 2rem;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .solution-equals {
+      font-size: 2rem;
+      color: var(--secondary);
+      font-weight: 700;
+    }
+
+    .solution-box.highlight {
+      border-color: var(--secondary);
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    }
+
+    /* Cards (Karute) Section */
+    .cards-section {
+      background: var(--white);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .karute-card {
+      background: var(--bg);
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .karute-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .karute-header {
+      background: var(--gradient);
+      color: var(--white);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .karute-number {
+      background: rgba(255, 255, 255, 0.2);
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+    }
+
+    .karute-title {
+      font-weight: 600;
+    }
+
+    .karute-body {
+      padding: 1.5rem;
+    }
+
+    .karute-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .karute-list {
+      list-style: none;
+    }
+
+    .karute-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .karute-list li:last-child {
+      border-bottom: none;
+    }
+
+    .karute-list li::before {
+      content: '✓';
+      color: var(--secondary);
+      font-weight: 700;
+    }
+
+    .karute-highlight {
+      background: #fef3c7;
+      border-left: 3px solid var(--warning);
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .karute-highlight-title {
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    /* Signal Section */
+    .signal-demo {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .signal-item {
+      text-align: center;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      background: var(--white);
+      border: 2px solid var(--border);
+      min-width: 180px;
+    }
+
+    .signal-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .signal-label {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .signal-desc {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Target Section */
+    .target-section {
+      background: var(--bg);
+    }
+
+    .target-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .target-card {
+      background: var(--white);
+      border-radius: 1rem;
+      padding: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .target-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .target-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .target-desc {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .target-pain {
+      background: #fef2f2;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .target-pain-title {
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Flow Section */
+    .flow-section {
+      background: var(--white);
+    }
+
+    .flow-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .flow-step {
+      flex: 1;
+      min-width: 200px;
+      text-align: center;
+      position: relative;
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -1rem;
+      top: 2rem;
+      font-size: 1.5rem;
+      color: var(--primary);
+    }
+
+    .flow-step-number {
+      width: 3rem;
+      height: 3rem;
+      background: var(--gradient);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin: 0 auto 1rem;
+    }
+
+    .flow-step-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .flow-step-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .flow-step-time {
+      display: inline-block;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    /* Difference Table */
+    .diff-section {
+      background: var(--bg);
+    }
+
+    .diff-table {
+      width: 100%;
+      background: var(--white);
+      border-radius: 1rem;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .diff-table th,
+    .diff-table td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .diff-table th {
+      background: var(--bg);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .diff-table td {
+      font-size: 0.875rem;
+    }
+
+    .diff-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .diff-table .highlight-col {
+      background: #ecfdf5;
+    }
+
+    .diff-badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .diff-badge.free {
+      background: var(--border);
+      color: var(--text-secondary);
+    }
+
+    .diff-badge.paid {
+      background: var(--secondary);
+      color: var(--white);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background: var(--gradient);
+      color: var(--white);
+      text-align: center;
+    }
+
+    .cta-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .cta-desc {
+      opacity: 0.9;
+      margin-bottom: 2rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta-section .btn-primary {
+      background: var(--white);
+      color: var(--primary);
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--text);
+      color: var(--white);
+      padding: 3rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .footer-link:hover {
+      color: var(--white);
+    }
+
+    .footer-copy {
+      width: 100%;
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.875rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 1.75rem;
+      }
+
+      .hero-stats {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .flow-step:not(:last-child)::after {
+        display: none;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">Regulatory Quick Scan</a>
+      <nav class="nav">
+        <a href="#service" class="nav-link">サービス概要</a>
+        <a href="#cards" class="nav-link">診断カルテ</a>
+        <a href="#flow" class="nav-link">ご利用の流れ</a>
+        <a href="articles.html" class="nav-link">政策解説メディア</a>
+        <a href="form.html" class="btn btn-primary">無料相談</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span>AI × エキスパート</span>
+        <span>ハイブリッド型</span>
+      </div>
+      <h1>新規事業の「法的・政治的地雷」を<br>最短3営業日で判定</h1>
+      <p class="hero-subtitle">
+        AIの網羅性と専門家の洞察力を組み合わせた、定型化リサーチサービス。
+        フルパッケージのロビイングは高すぎる。でも無料検索では不安——その間を埋めます。
+      </p>
+      <div class="hero-cta">
+        <a href="form.html" class="btn btn-primary btn-large">診断を依頼する</a>
+        <a href="#cards" class="btn btn-outline btn-large">サービス詳細を見る</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-value">3日</div>
+          <div class="stat-label">最短納品</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">4枚</div>
+          <div class="stat-label">診断カルテ</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">30-60分</div>
+          <div class="stat-label">専門家レビュー</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section class="section problem-section" id="problem">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">PROBLEM</span>
+        <h2 class="section-title">こんなお悩みありませんか？</h2>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-icon">⏰</div>
+          <h3 class="problem-title">法務確認に時間がかかる</h3>
+          <p class="problem-desc">本社法務部を通すと数週間。スピード感のある新規事業に対応できない。</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">💸</div>
+          <h3 class="problem-title">外部コンサルは高額</h3>
+          <p class="problem-desc">フルパッケージのロビイングは月額数十万〜数百万。初期検討には重すぎる。</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🤖</div>
+          <h3 class="problem-title">AIだけでは不安</h3>
+          <p class="problem-desc">ChatGPTは嘘をつく。法的判断を任せるには信頼性が足りない。</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-icon">🎯</div>
+          <h3 class="problem-title">何を調べればいいかわからない</h3>
+          <p class="problem-desc">規制の全体像が見えず、どこから手をつければいいか不明。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution Section -->
+  <section class="section solution-section" id="service">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">SOLUTION</span>
+        <h2 class="section-title">AIの速度 × 専門家の眼</h2>
+        <p class="section-desc">AIは「情報の網羅」、人間は「情報の重み付け」。役割分担で効率と精度を両立します。</p>
+      </div>
+      <div class="solution-visual">
+        <div class="solution-box">
+          <div class="solution-box-icon">🤖</div>
+          <div class="solution-box-title">AI処理</div>
+          <div class="solution-box-desc">
+            専用RAGで官公庁資料を検索<br>
+            網羅的なドラフト生成
+          </div>
+        </div>
+        <div class="solution-plus">+</div>
+        <div class="solution-box">
+          <div class="solution-box-icon">👔</div>
+          <div class="solution-box-title">専門家レビュー</div>
+          <div class="solution-box-desc">
+            抜け漏れチェック<br>
+            「空気感」の追記
+          </div>
+        </div>
+        <div class="solution-equals">=</div>
+        <div class="solution-box highlight">
+          <div class="solution-box-icon">📋</div>
+          <div class="solution-box-title">診断カルテ</div>
+          <div class="solution-box-desc">
+            高速・正確・実用的な<br>
+            意思決定支援レポート
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cards Section -->
+  <section class="section cards-section" id="cards">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">DELIVERABLES</span>
+        <h2 class="section-title">4枚の「政治リスク診断カルテ」</h2>
+        <p class="section-desc">エッセイではなく「診断カルテ」形式。すぐに意思決定に使えるフォーマットでお届けします。</p>
+      </div>
+      <div class="cards-grid">
+        <!-- Card 1 -->
+        <div class="karute-card">
+          <div class="karute-header">
+            <span class="karute-number">1</span>
+            <span class="karute-title">規制マップ（Regulatory Landscape）</span>
+          </div>
+          <div class="karute-body">
+            <p class="karute-subtitle">AIがリストアップ → 専門家が抜け漏れ確認</p>
+            <ul class="karute-list">
+              <li>所管官庁・部局の特定</li>
+              <li>関連法規制の条文リスト</li>
+              <li>ガイドライン・通知の整理</li>
+              <li>規制間の関係性マップ</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="karute-card">
+          <div class="karute-header">
+            <span class="karute-number">2</span>
+            <span class="karute-title">議論のステータス（Political Timeline）</span>
+          </div>
+          <div class="karute-body">
+            <p class="karute-subtitle">AIが会議録を要約 → 専門家が「空気感」を追記</p>
+            <ul class="karute-list">
+              <li>課題認知（議員・メディアで話題）</li>
+              <li>検討会設置（官僚主導で議論開始）</li>
+              <li>パブリックコメント段階</li>
+              <li>法案提出・施行予定</li>
+            </ul>
+            <div class="karute-highlight">
+              <div class="karute-highlight-title">💡 プロのインサイト</div>
+              「議事録では反対意見が多いが、座長は推進派なので進む可能性が高い」
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="karute-card">
+          <div class="karute-header">
+            <span class="karute-number">3</span>
+            <span class="karute-title">キーマン・ステークホルダー分析</span>
+          </div>
+          <div class="karute-body">
+            <p class="karute-subtitle">AIでは判断できない「政治力」を専門家が評価</p>
+            <ul class="karute-list">
+              <li>推進派の政治家・団体</li>
+              <li>反対派の既存業界団体</li>
+              <li>圧力の強さ（5段階評価）</li>
+              <li>連携可能性の示唆</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="karute-card">
+          <div class="karute-header">
+            <span class="karute-number">4</span>
+            <span class="karute-title">Go/No-Go シグナル</span>
+          </div>
+          <div class="karute-body">
+            <p class="karute-subtitle">最終判定と初動アドバイス</p>
+            <div class="signal-demo">
+              <div class="signal-item">
+                <div class="signal-icon">🟢</div>
+                <div class="signal-label">問題なし</div>
+                <div class="signal-desc">Go判定</div>
+              </div>
+              <div class="signal-item">
+                <div class="signal-icon">🟡</div>
+                <div class="signal-label">条件付き可</div>
+                <div class="signal-desc">要ロビイング</div>
+              </div>
+              <div class="signal-item">
+                <div class="signal-icon">🔴</div>
+                <div class="signal-label">現行法で違法</div>
+                <div class="signal-desc">撤退推奨</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Target Section -->
+  <section class="section target-section" id="target">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">TARGET</span>
+        <h2 class="section-title">こんな方におすすめ</h2>
+      </div>
+      <div class="target-grid">
+        <div class="target-card">
+          <div class="target-icon">🚀</div>
+          <h3 class="target-title">スタートアップ</h3>
+          <p class="target-desc">法務部がなく、顧問弁護士もビジネスモデルに詳しくない方へ</p>
+          <div class="target-pain">
+            <div class="target-pain-title">よくある悩み</div>
+            「この事業、そもそも法律的にOK？」がわからないまま進めている
+          </div>
+        </div>
+        <div class="target-card">
+          <div class="target-icon">🏢</div>
+          <h3 class="target-title">大企業の新規事業部</h3>
+          <p class="target-desc">本社法務部を通すと時間がかかる。手軽に外の意見を聞きたい方へ</p>
+          <div class="target-pain">
+            <div class="target-pain-title">よくある悩み</div>
+            法務部に聞くと3週間。経営会議までに間に合わない
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flow Section -->
+  <section class="section flow-section" id="flow">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">FLOW</span>
+        <h2 class="section-title">ご利用の流れ</h2>
+      </div>
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="flow-step-number">1</div>
+          <h3 class="flow-step-title">フォーム入力</h3>
+          <p class="flow-step-desc">事業概要と懸念している規制領域を入力</p>
+          <span class="flow-step-time">約5分</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">2</div>
+          <h3 class="flow-step-title">AI一次処理</h3>
+          <p class="flow-step-desc">専用RAGで官公庁資料を検索し、ドラフト生成</p>
+          <span class="flow-step-time">自動</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">3</div>
+          <h3 class="flow-step-title">専門家レビュー</h3>
+          <p class="flow-step-desc">抜け漏れ確認、空気感の追記、最終判定</p>
+          <span class="flow-step-time">30-60分</span>
+        </div>
+        <div class="flow-step">
+          <div class="flow-step-number">4</div>
+          <h3 class="flow-step-title">レポート納品</h3>
+          <p class="flow-step-desc">4枚のカルテをPDFでメール納品</p>
+          <span class="flow-step-time">最短3営業日</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Difference Section -->
+  <section class="section diff-section">
+    <div class="section-inner">
+      <div class="section-header">
+        <span class="section-tag">DIFFERENCE</span>
+        <h2 class="section-title">無料メディアとの違い</h2>
+        <p class="section-desc">一般論ではなく「あなたの事業」に対する判断を提供します</p>
+      </div>
+      <table class="diff-table">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>無料Webサイト <span class="diff-badge free">集客用</span></th>
+            <th class="highlight-col">有料スキャン <span class="diff-badge paid">本サービス</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>情報の主語</td>
+            <td>「日本政府は」「〇〇省は」</td>
+            <td class="highlight-col"><strong>「貴社の事業は」</strong></td>
+          </tr>
+          <tr>
+            <td>内容</td>
+            <td>法改正の事実、一般的な影響解説</td>
+            <td class="highlight-col"><strong>特定ビジネスモデルへの阻害要因特定</strong></td>
+          </tr>
+          <tr>
+            <td>情報の方向</td>
+            <td>過去〜現在「何が決まったか」</td>
+            <td class="highlight-col"><strong>未来「これからどう動くか」</strong></td>
+          </tr>
+          <tr>
+            <td>提供価値</td>
+            <td>知識の習得、キャッチアップ</td>
+            <td class="highlight-col"><strong>意思決定の支援、リスク回避</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section cta-section">
+    <div class="section-inner">
+      <h2 class="cta-title">まずは無料相談から</h2>
+      <p class="cta-desc">貴社の事業内容をお聞きし、本サービスが適切かどうかをお伝えします。</p>
+      <a href="form.html" class="btn btn-primary btn-large">診断を依頼する</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">Regulatory Quick Scan</div>
+      <div class="footer-links">
+        <a href="#" class="footer-link">会社概要</a>
+        <a href="#" class="footer-link">プライバシーポリシー</a>
+        <a href="#" class="footer-link">利用規約</a>
+        <a href="#" class="footer-link">お問い合わせ</a>
+      </div>
+      <div class="footer-copy">© 2024 Regulatory Quick Scan. All rights reserved.</div>
+    </div>
+  </footer>
+</body>
+</html>
