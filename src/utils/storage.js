@@ -47,24 +47,27 @@ export function clearApiKeys() {
 }
 
 /**
- * Preset management for modification combinations
+ * Preset management for YAML templates
  */
 
 const PRESET_STORAGE_KEY = 'magazine_thumbnail_generator_presets'
 
 /**
- * Save a new preset
+ * Save a new YAML preset
  * @param {string} name - Preset name
- * @param {Array<string>} modifications - Array of modification types
+ * @param {string} yaml - YAML content
+ * @param {string} description - Preset description (optional)
  * @returns {boolean} - Success status
  */
-export function savePreset(name, modifications) {
+export function savePreset(name, yaml, description = '') {
   try {
     const presets = loadPresets()
     const newPreset = {
       id: Date.now().toString(),
       name: name,
-      modifications: modifications,
+      yaml: yaml,
+      description: description,
+      isCustom: true,
       createdAt: new Date().toISOString()
     }
     presets.push(newPreset)

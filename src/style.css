@@ -1491,3 +1491,29 @@ body {
   background: var(--color-red-dark);
   border-color: var(--color-red-dark);
 }
+/* Preset badges */
+.preset-badge-default,
+.preset-badge-custom {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+}
+
+.preset-badge-default {
+  background: var(--color-gold);
+  color: var(--color-black);
+}
+
+.preset-badge-custom {
+  background: var(--color-blue);
+  color: var(--color-white);
+}
+
+.preset-description {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin-top: 0.25rem;
+}

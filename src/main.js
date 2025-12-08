@@ -2,6 +2,7 @@ import './style.css'
 import { fetchUrlContent } from './api/firecrawl.js'
 import { generateYamlPlan, generateImages, adjustYamlPlan, convertToVerticalYaml } from './api/gemini.js'
 import { saveApiKeys, loadApiKeys, savePreset, loadPresets, deletePreset, getPreset } from './utils/storage.js'
+import { defaultTemplates } from './presets/default-templates.js'
 import * as yaml from 'js-yaml'
 
 // DOM Elements
@@ -691,53 +692,29 @@ document.head.appendChild(style)
 
 // Preset management functions
 function renderPresets() {
-  const presets = loadPresets()
+  const customPresets = loadPresets()
+  const allPresets = [...defaultTemplates, ...customPresets]
   const presetSection = document.getElementById('presetSection')
   const presetList = document.getElementById('presetList')
-  
-  if (presets.length === 0) {
-    presetSection.style.display = 'none'
-    presetList.innerHTML = '<p class="preset-empty">まだプリセットが保存されていません</p>'
-    return
-  }
   
   presetSection.style.display = 'block'
   presetList.innerHTML = ''
   
-  const modificationNames = {
-    'blue': '🔵 青系',
-    'green': '🟢 緑系',
-    'yellow': '🟡 黄色系',
-    'purple': '🟣 紫系',
-    'red': '🔴 赤系',
-    'monochrome': '⚫ モノクロ',
-    'font_bold': '💪 超極太',
-    'font_modern': '✨ モダン',
-    'font_handwritten': '✍️ 手書き',
-    'text_shorter': '⚡ 短く',
-    'text_dramatic': '🔥 ドラマチック',
-    'text_formal': '👔 フォーマル',
-    'layout_compact': '📦 コンパクト',
-    'layout_simple': '🌿 シンプル',
-    'random': '🎰 ランダム'
-  }
-  
-  presets.forEach(preset => {
+  allPresets.forEach(preset => {
     const presetItem = document.createElement('div')
     presetItem.className = 'preset-item'
     
-    const modsText = preset.modifications
-      .map(mod => modificationNames[mod] || mod)
-      .join(' + ')
+    const isCustom = preset.isCustom || false
+    const customBadge = isCustom ? '<span class="preset-badge-custom">カスタム</span>' : '<span class="preset-badge-default">デフォルト</span>'
     
     presetItem.innerHTML = `
       <div class="preset-info">
-        <div class="preset-name">${preset.name}</div>
-        <div class="preset-mods">${modsText}</div>
+        <div class="preset-name">${preset.name} ${customBadge}</div>
+        <div class="preset-description">${preset.description || ''}</div>
       </div>
       <div class="preset-actions">
         <button class="preset-btn preset-btn-load" data-preset-id="${preset.id}">読み込み</button>
-        <button class="preset-btn preset-btn-delete" data-preset-id="${preset.id}">削除</button>
+        ${isCustom ? `<button class="preset-btn preset-btn-delete" data-preset-id="${preset.id}">削除</button>` : ''}
       </div>
     `
     
@@ -755,19 +732,22 @@ function renderPresets() {
 }
 
 function handleSavePreset() {
-  if (selectedModifications.size === 0) {
-    showNotification('保存する修正を選択してください')
+  const yamlContent = elements.yamlEditor.value.trim()
+  
+  if (!yamlContent) {
+    showNotification('YAMLプランが空です。まずサムネイルを生成してください')
     return
   }
   
-  const name = prompt('プリセット名を入力してください:', `プリセット ${loadPresets().length + 1}`)
+  const name = prompt('プリセット名を入力してください:', `マイプリセット ${loadPresets().length + 1}`)
   
   if (!name || name.trim() === '') {
     return
   }
   
-  const modifications = Array.from(selectedModifications)
-  const success = savePreset(name.trim(), modifications)
+  const description = prompt('説明を入力してください（省略可）:', '')
+  
+  const success = savePreset(name.trim(), yamlContent, description || '')
   
   if (success) {
     showNotification(`プリセット「${name}」を保存しました`)
@@ -778,25 +758,23 @@ function handleSavePreset() {
 }
 
 function handleLoadPreset(presetId) {
-  const preset = getPreset(presetId)
+  // Check default templates first
+  let preset = defaultTemplates.find(p => p.id === presetId)
+  
+  // If not found, check custom presets
+  if (!preset) {
+    preset = getPreset(presetId)
+  }
+  
   if (!preset) {
     showNotification('プリセットが見つかりません')
     return
   }
   
-  // Clear current selection
-  handleClearModifications()
+  // Load YAML into editor
+  elements.yamlEditor.value = preset.yaml
+  updateYamlLineNumbers()
   
-  // Apply preset modifications
-  preset.modifications.forEach(modType => {
-    const btn = Array.from(elements.modButtons).find(b => b.dataset.mod === modType)
-    if (btn) {
-      selectedModifications.add(modType)
-      btn.classList.add('selected')
-    }
-  })
-  
-  updateModificationUI()
   showNotification(`プリセット「${preset.name}」を読み込みました`)
 }
 
