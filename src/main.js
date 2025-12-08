@@ -112,13 +112,9 @@ function setupEventListeners() {
     randomBtn.addEventListener('click', handleRandomGacha)
   }
 
-  // Apply modifications button
-  const applyModsBtn = document.getElementById('applyModsBtn')
+  // Modification action buttons
   const clearModsBtn = document.getElementById('clearModsBtn')
   const savePresetBtn = document.getElementById('savePresetBtn')
-  if (applyModsBtn) {
-    applyModsBtn.addEventListener('click', handleApplyModifications)
-  }
   if (clearModsBtn) {
     clearModsBtn.addEventListener('click', handleClearModifications)
   }
@@ -344,6 +340,33 @@ async function handleRegenerate() {
   if (!geminiKey) {
     showNotification('Gemini APIキーを入力してください')
     return
+  }
+
+  // Check if there are selected modifications
+  if (selectedModifications.size > 0) {
+    const currentYaml = elements.yamlEditor.value.trim()
+    if (!currentYaml) {
+      showNotification('先にYAMLプランを生成してください')
+      return
+    }
+
+    // Apply modifications before regenerating
+    showLoading('修正を適用中...')
+    try {
+      const modifications = Array.from(selectedModifications)
+      const adjustedYaml = await adjustYamlPlan(currentYaml, modifications, geminiKey)
+      elements.yamlEditor.value = adjustedYaml
+      updateYamlLineNumbers()
+      hideLoading()
+      showNotification(`${modifications.length}個の修正を適用しました`)
+      
+      // Clear selections after applying
+      handleClearModifications()
+    } catch (error) {
+      hideLoading()
+      showNotification(`修正適用失敗: ${error.message}`)
+      return
+    }
   }
 
   await generateImagesFromYaml()

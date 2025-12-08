@@ -131,9 +131,9 @@ export async function generateYamlPlan(content, apiKey) {
 }
 
 /**
- * Adjust YAML plan with various modifications using Gemini 3 Pro
+ * Adjust YAML plan based on modification type(s)
  * @param {string} yamlContent - The current YAML plan
- * @param {string} modificationType - Type of modification (color, font, text, etc.)
+ * @param {string|Array<string>} modificationType - Type(s) of modification (color, font, text, etc.)
  * @param {string} apiKey - Gemini API key
  * @returns {Promise<string>} - The adjusted YAML plan
  */
@@ -156,7 +156,20 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
     'random': 'ランダムに創意的な変更を加えてください。カラー、フォント、テキスト、レイアウトのいずれかを変更。'
   }
 
-  const modificationInstruction = modificationPrompts[modificationType] || modificationPrompts['random']
+  // Handle both string and array inputs
+  let modifications = []
+  if (Array.isArray(modificationType)) {
+    modifications = modificationType
+  } else if (typeof modificationType === 'string') {
+    modifications = modificationType.split(',').map(m => m.trim())
+  }
+
+  // Build combined modification instruction
+  const modificationInstructions = modifications
+    .map(mod => modificationPrompts[mod] || modificationPrompts['random'])
+    .join('\n')
+
+  const modificationInstruction = modificationInstructions || modificationPrompts['random']
 
   const prompt = `あなたはYAMLプランの調整エキスパートです。
 与えられたYAMLプランに対して、指定された修正を加えてください。

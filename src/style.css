@@ -1635,3 +1635,25 @@ body {
 .btn-mod-text {
   font-size: 1rem;
 }
+
+/* Modification info styles */
+.modification-info {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+  border-radius: 8px;
+  border: 2px solid var(--color-primary);
+}
+
+.modification-info-text {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-black);
+}
+
+.modification-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1rem;
+}
