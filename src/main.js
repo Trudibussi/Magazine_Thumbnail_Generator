@@ -55,6 +55,7 @@ const elements = {
 // State
 let currentTab = 'url'
 let fileContent = null
+let selectedModifications = new Set()
 
 // Initialize
 function init() {
@@ -96,10 +97,20 @@ function setupEventListeners() {
   elements.yamlEditor.addEventListener('input', updateYamlLineNumbers)
   elements.yamlEditor.addEventListener('scroll', syncYamlScroll)
 
-  // Modification gacha buttons
+  // Modification gacha buttons - toggle selection
   elements.modButtons.forEach(btn => {
-    btn.addEventListener('click', () => handleModification(btn.dataset.mod))
+    btn.addEventListener('click', () => toggleModificationSelection(btn))
   })
+
+  // Apply modifications button
+  const applyModsBtn = document.getElementById('applyModsBtn')
+  const clearModsBtn = document.getElementById('clearModsBtn')
+  if (applyModsBtn) {
+    applyModsBtn.addEventListener('click', handleApplyModifications)
+  }
+  if (clearModsBtn) {
+    clearModsBtn.addEventListener('click', handleClearModifications)
+  }
 
   // Clear gallery button
   elements.clearGalleryBtn.addEventListener('click', handleClearGallery)
@@ -348,6 +359,119 @@ async function handleVerticalVersion() {
   } catch (error) {
     hideNotification()
     showNotification(`縦書き変換失敗: ${error.message}`)
+  }
+}
+
+// Toggle modification selection
+function toggleModificationSelection(btn) {
+  const modType = btn.dataset.mod
+  
+  if (selectedModifications.has(modType)) {
+    selectedModifications.delete(modType)
+    btn.classList.remove('selected')
+  } else {
+    selectedModifications.add(modType)
+    btn.classList.add('selected')
+  }
+  
+  updateModificationUI()
+}
+
+// Update modification UI
+function updateModificationUI() {
+  const modificationActions = document.getElementById('modificationActions')
+  const selectedModsCount = document.getElementById('selectedModsCount')
+  
+  if (selectedModifications.size > 0) {
+    modificationActions.style.display = 'flex'
+    selectedModsCount.textContent = selectedModifications.size
+  } else {
+    modificationActions.style.display = 'none'
+  }
+}
+
+// Clear all modification selections
+function handleClearModifications() {
+  selectedModifications.clear()
+  elements.modButtons.forEach(btn => {
+    btn.classList.remove('selected')
+  })
+  updateModificationUI()
+}
+
+// Apply selected modifications
+async function handleApplyModifications() {
+  const geminiKey = elements.geminiKey.value
+  if (!geminiKey) {
+    showNotification('Gemini APIキーを入力してください')
+    return
+  }
+
+  const currentYaml = elements.yamlEditor.value
+  if (!currentYaml) {
+    showNotification('まずYAMLプランを生成してください')
+    return
+  }
+
+  if (selectedModifications.size === 0) {
+    showNotification('修正を選択してください')
+    return
+  }
+
+  // Disable all modification buttons during processing
+  elements.modButtons.forEach(btn => btn.disabled = true)
+  const applyBtn = document.getElementById('applyModsBtn')
+  const clearBtn = document.getElementById('clearModsBtn')
+  if (applyBtn) applyBtn.disabled = true
+  if (clearBtn) clearBtn.disabled = true
+
+  const modificationNames = {
+    'blue': '🔵 青系',
+    'green': '🟢 緑系',
+    'yellow': '🟡 黄色系',
+    'purple': '🟣 紫系',
+    'red': '🔴 赤系',
+    'monochrome': '⚫ モノクロ',
+    'font_bold': '💪 超極太',
+    'font_modern': '✨ モダン',
+    'font_handwritten': '✍️ 手書き',
+    'text_shorter': '⚡ 短く',
+    'text_dramatic': '🔥 ドラマチック',
+    'text_formal': '👔 フォーマル',
+    'layout_compact': '📦 コンパクト',
+    'layout_simple': '🌿 シンプル',
+    'random': '🎰 ランダム'
+  }
+
+  const selectedModsList = Array.from(selectedModifications)
+    .map(mod => modificationNames[mod] || mod)
+    .join(' + ')
+  
+  showNotification(`${selectedModsList}に調整中...`)
+
+  try {
+    // Combine all modifications into a single instruction
+    const combinedInstruction = Array.from(selectedModifications).join(',')
+    const adjustedYaml = await adjustYamlPlan(currentYaml, combinedInstruction, geminiKey)
+    
+    if (adjustedYaml && adjustedYaml.trim().length > 0) {
+      elements.yamlEditor.value = adjustedYaml
+      updateYamlLineNumbers()
+      showNotification(`${selectedModsList}に調整しました！ 「再生成」で画像を更新してください`)
+      
+      // Clear selections after successful application
+      handleClearModifications()
+    } else {
+      showNotification(`調整失敗: YAMLが空です。元のYAMLを保持します。`)
+    }
+  } catch (error) {
+    console.error('Modification error:', error)
+    showNotification(`調整失敗: ${error.message}`)
+  } finally {
+    // Re-enable buttons
+    elements.modButtons.forEach(btn => btn.disabled = false)
+    if (applyBtn) applyBtn.disabled = false
+    if (clearBtn) clearBtn.disabled = false
   }
 }
 

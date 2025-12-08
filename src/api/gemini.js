@@ -158,7 +158,7 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
 
   const modificationInstruction = modificationPrompts[modificationType] || modificationPrompts['random']
 
-  const systemPrompt = `あなたはYAMLプランの調整エキスパートです。
+  const prompt = `あなたはYAMLプランの調整エキスパートです。
 与えられたYAMLプランに対して、指定された修正を加えてください。
 
 ## 重要なルール
@@ -168,7 +168,15 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
 - 句読点は使用しないこと
 - カラー名は英語で指定すること（black, white, red, yellow, blue, green, purple, orange, gold, grayなど）
 
-以下の修正指示に従って、YAMLを調整してください。`
+## 修正指示
+${modificationInstruction}
+
+## 現在のYAML
+\`\`\`yaml
+${yamlContent}
+\`\`\`
+
+上記のYAMLに修正を加えて、完全なYAMLを\`\`\`yaml ... \`\`\`のコードブロックで出力してください。`
 
   const response = await fetch(
     `${GEMINI_API_URL}/gemini-3-pro-preview:generateContent?key=${apiKey}`,
@@ -180,17 +188,15 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
       body: JSON.stringify({
         contents: [
           {
-            role: 'user',
             parts: [
-              { text: systemPrompt },
-              { text: `\n\n## 修正指示\n${modificationInstruction}` },
-              { text: `\n\n## 現在のYAML\n\`\`\`yaml\n${yamlContent}\n\`\`\`` }
+              { text: prompt }
             ]
           }
         ],
         generationConfig: {
-          temperature: 0.9,
-          maxOutputTokens: 4096,
+          temperature: 0.7,
+          maxOutputTokens: 8192,
+          responseModalities: ['TEXT']
         }
       }),
     }

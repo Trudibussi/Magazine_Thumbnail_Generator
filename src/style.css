@@ -1342,3 +1342,41 @@ body {
   transform: translate(2px, 2px);
   box-shadow: none;
 }
+
+/* Modification Actions */
+.modification-actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px dashed rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.modification-actions .btn {
+  flex: 1;
+}
+
+.modification-actions .btn-small {
+  flex: 0 0 auto;
+}
+
+/* Selected modification button state */
+.btn-mod.selected {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+  color: white;
+  border-color: #cc0000;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.3);
+}
+
+.btn-mod.selected::before {
+  content: '✓ ';
+  font-weight: bold;
+}
+
+/* Modification button hover when selected */
+.btn-mod.selected:hover {
+  background: linear-gradient(135deg, #cc0000 0%, #990000 100%);
+  transform: scale(1.05);
+}
