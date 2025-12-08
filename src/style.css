@@ -1547,13 +1547,14 @@ body {
   border-radius: 3px;
   margin-left: 0.5rem;
   background: var(--color-primary);
-  color: var(--color-white);
+  color: var(--color-black);
 }
 
 .preset-btn-loaded {
   background: var(--color-primary) !important;
-  color: var(--color-white) !important;
+  color: var(--color-black) !important;
   cursor: default !important;
+  font-weight: 700 !important;
 }
 
 .preset-btn-loaded:hover {
