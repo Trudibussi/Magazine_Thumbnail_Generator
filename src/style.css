@@ -1517,3 +1517,18 @@ body {
   color: var(--color-gray-500);
   margin-top: 0.25rem;
 }
+
+/* Preset card specific styles */
+.card-presets {
+  margin-top: 2rem;
+}
+
+.card-presets .preset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.card-presets .preset-item {
+  margin: 0;
+}

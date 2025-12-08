@@ -694,10 +694,8 @@ document.head.appendChild(style)
 function renderPresets() {
   const customPresets = loadPresets()
   const allPresets = [...defaultTemplates, ...customPresets]
-  const presetSection = document.getElementById('presetSection')
   const presetList = document.getElementById('presetList')
   
-  presetSection.style.display = 'block'
   presetList.innerHTML = ''
   
   allPresets.forEach(preset => {
