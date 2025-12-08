@@ -57,6 +57,7 @@ const elements = {
 let currentTab = 'url'
 let fileContent = null
 let selectedModifications = new Set()
+let currentLoadedPresetId = null
 
 // Initialize
 function init() {
@@ -99,10 +100,17 @@ function setupEventListeners() {
   elements.yamlEditor.addEventListener('input', updateYamlLineNumbers)
   elements.yamlEditor.addEventListener('scroll', syncYamlScroll)
 
-  // Modification gacha buttons - toggle selection
-  elements.modButtons.forEach(btn => {
-    btn.addEventListener('click', () => toggleModificationSelection(btn))
+  // Modification gacha radio buttons
+  const modRadios = document.querySelectorAll('.mod-option input[type="radio"]')
+  modRadios.forEach(radio => {
+    radio.addEventListener('change', updateModificationUI)
   })
+  
+  // Random gacha button
+  const randomBtn = document.querySelector('[data-mod="random"]')
+  if (randomBtn) {
+    randomBtn.addEventListener('click', handleRandomGacha)
+  }
 
   // Apply modifications button
   const applyModsBtn = document.getElementById('applyModsBtn')
@@ -368,25 +376,17 @@ async function handleVerticalVersion() {
   }
 }
 
-// Toggle modification selection
-function toggleModificationSelection(btn) {
-  const modType = btn.dataset.mod
-  
-  if (selectedModifications.has(modType)) {
-    selectedModifications.delete(modType)
-    btn.classList.remove('selected')
-  } else {
-    selectedModifications.add(modType)
-    btn.classList.add('selected')
-  }
-  
-  updateModificationUI()
-}
-
 // Update modification UI
 function updateModificationUI() {
   const modificationActions = document.getElementById('modificationActions')
   const selectedModsCount = document.getElementById('selectedModsCount')
+  
+  // Get selected modifications from radio buttons
+  selectedModifications.clear()
+  const modRadios = document.querySelectorAll('.mod-option input[type="radio"]:checked')
+  modRadios.forEach(radio => {
+    selectedModifications.add(radio.value)
+  })
   
   if (selectedModifications.size > 0) {
     modificationActions.style.display = 'flex'
@@ -396,16 +396,33 @@ function updateModificationUI() {
   }
 }
 
+// Handle random gacha
+function handleRandomGacha() {
+  // Randomly select one option from each category
+  const categories = ['color', 'font', 'text', 'layout']
+  
+  categories.forEach(category => {
+    const radios = document.querySelectorAll(`input[name="${category}"]`)
+    if (radios.length > 0) {
+      const randomIndex = Math.floor(Math.random() * radios.length)
+      radios[randomIndex].checked = true
+    }
+  })
+  
+  updateModificationUI()
+  showNotification('🎰 ランダムに選択しました！')
+}
+
 // Clear all modification selections
 function handleClearModifications() {
   selectedModifications.clear()
-  elements.modButtons.forEach(btn => {
-    btn.classList.remove('selected')
+  const modRadios = document.querySelectorAll('.mod-option input[type="radio"]')
+  modRadios.forEach(radio => {
+    radio.checked = false
   })
   updateModificationUI()
+  showNotification('選択をクリアしました')
 }
-
-// Apply selected modifications
 async function handleApplyModifications() {
   const geminiKey = elements.geminiKey.value
   if (!geminiKey) {
@@ -700,18 +717,20 @@ function renderPresets() {
   
   allPresets.forEach(preset => {
     const presetItem = document.createElement('div')
-    presetItem.className = 'preset-item'
+    const isLoaded = currentLoadedPresetId === preset.id
+    presetItem.className = isLoaded ? 'preset-item preset-item-loaded' : 'preset-item'
     
     const isCustom = preset.isCustom || false
     const customBadge = isCustom ? '<span class="preset-badge-custom">カスタム</span>' : '<span class="preset-badge-default">デフォルト</span>'
+    const loadedBadge = isLoaded ? '<span class="preset-badge-loaded">✓ 読み込み済み</span>' : ''
     
     presetItem.innerHTML = `
       <div class="preset-info">
-        <div class="preset-name">${preset.name} ${customBadge}</div>
+        <div class="preset-name">${preset.name} ${customBadge} ${loadedBadge}</div>
         <div class="preset-description">${preset.description || ''}</div>
       </div>
       <div class="preset-actions">
-        <button class="preset-btn preset-btn-load" data-preset-id="${preset.id}">読み込み</button>
+        <button class="preset-btn preset-btn-load ${isLoaded ? 'preset-btn-loaded' : ''}" data-preset-id="${preset.id}">${isLoaded ? '✓ 読み込み済み' : '読み込み'}</button>
         ${isCustom ? `<button class="preset-btn preset-btn-delete" data-preset-id="${preset.id}">削除</button>` : ''}
       </div>
     `
@@ -772,6 +791,10 @@ function handleLoadPreset(presetId) {
   // Load YAML into editor
   elements.yamlEditor.value = preset.yaml
   updateYamlLineNumbers()
+  
+  // Update loaded state
+  currentLoadedPresetId = presetId
+  renderPresets()
   
   showNotification(`プリセット「${preset.name}」を読み込みました`)
 }
