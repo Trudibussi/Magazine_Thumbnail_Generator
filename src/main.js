@@ -1,7 +1,7 @@
 import './style.css'
 import { fetchUrlContent } from './api/firecrawl.js'
 import { generateYamlPlan, generateImages, adjustYamlPlan, convertToVerticalYaml } from './api/gemini.js'
-import { saveApiKeys, loadApiKeys } from './utils/storage.js'
+import { saveApiKeys, loadApiKeys, savePreset, loadPresets, deletePreset, getPreset } from './utils/storage.js'
 import * as yaml from 'js-yaml'
 
 // DOM Elements
@@ -62,6 +62,7 @@ function init() {
   loadSavedKeys()
   setupEventListeners()
   updateYamlLineNumbers()
+  renderPresets()
 }
 
 function loadSavedKeys() {
@@ -105,11 +106,15 @@ function setupEventListeners() {
   // Apply modifications button
   const applyModsBtn = document.getElementById('applyModsBtn')
   const clearModsBtn = document.getElementById('clearModsBtn')
+  const savePresetBtn = document.getElementById('savePresetBtn')
   if (applyModsBtn) {
     applyModsBtn.addEventListener('click', handleApplyModifications)
   }
   if (clearModsBtn) {
     clearModsBtn.addEventListener('click', handleClearModifications)
+  }
+  if (savePresetBtn) {
+    savePresetBtn.addEventListener('click', handleSavePreset)
   }
 
   // Clear gallery button
@@ -683,6 +688,134 @@ style.textContent = `
   }
 `
 document.head.appendChild(style)
+
+// Preset management functions
+function renderPresets() {
+  const presets = loadPresets()
+  const presetSection = document.getElementById('presetSection')
+  const presetList = document.getElementById('presetList')
+  
+  if (presets.length === 0) {
+    presetSection.style.display = 'none'
+    presetList.innerHTML = '<p class="preset-empty">まだプリセットが保存されていません</p>'
+    return
+  }
+  
+  presetSection.style.display = 'block'
+  presetList.innerHTML = ''
+  
+  const modificationNames = {
+    'blue': '🔵 青系',
+    'green': '🟢 緑系',
+    'yellow': '🟡 黄色系',
+    'purple': '🟣 紫系',
+    'red': '🔴 赤系',
+    'monochrome': '⚫ モノクロ',
+    'font_bold': '💪 超極太',
+    'font_modern': '✨ モダン',
+    'font_handwritten': '✍️ 手書き',
+    'text_shorter': '⚡ 短く',
+    'text_dramatic': '🔥 ドラマチック',
+    'text_formal': '👔 フォーマル',
+    'layout_compact': '📦 コンパクト',
+    'layout_simple': '🌿 シンプル',
+    'random': '🎰 ランダム'
+  }
+  
+  presets.forEach(preset => {
+    const presetItem = document.createElement('div')
+    presetItem.className = 'preset-item'
+    
+    const modsText = preset.modifications
+      .map(mod => modificationNames[mod] || mod)
+      .join(' + ')
+    
+    presetItem.innerHTML = `
+      <div class="preset-info">
+        <div class="preset-name">${preset.name}</div>
+        <div class="preset-mods">${modsText}</div>
+      </div>
+      <div class="preset-actions">
+        <button class="preset-btn preset-btn-load" data-preset-id="${preset.id}">読み込み</button>
+        <button class="preset-btn preset-btn-delete" data-preset-id="${preset.id}">削除</button>
+      </div>
+    `
+    
+    presetList.appendChild(presetItem)
+  })
+  
+  // Add event listeners to preset buttons
+  presetList.querySelectorAll('.preset-btn-load').forEach(btn => {
+    btn.addEventListener('click', () => handleLoadPreset(btn.dataset.presetId))
+  })
+  
+  presetList.querySelectorAll('.preset-btn-delete').forEach(btn => {
+    btn.addEventListener('click', () => handleDeletePreset(btn.dataset.presetId))
+  })
+}
+
+function handleSavePreset() {
+  if (selectedModifications.size === 0) {
+    showNotification('保存する修正を選択してください')
+    return
+  }
+  
+  const name = prompt('プリセット名を入力してください:', `プリセット ${loadPresets().length + 1}`)
+  
+  if (!name || name.trim() === '') {
+    return
+  }
+  
+  const modifications = Array.from(selectedModifications)
+  const success = savePreset(name.trim(), modifications)
+  
+  if (success) {
+    showNotification(`プリセット「${name}」を保存しました`)
+    renderPresets()
+  } else {
+    showNotification('プリセットの保存に失敗しました')
+  }
+}
+
+function handleLoadPreset(presetId) {
+  const preset = getPreset(presetId)
+  if (!preset) {
+    showNotification('プリセットが見つかりません')
+    return
+  }
+  
+  // Clear current selection
+  handleClearModifications()
+  
+  // Apply preset modifications
+  preset.modifications.forEach(modType => {
+    const btn = Array.from(elements.modButtons).find(b => b.dataset.mod === modType)
+    if (btn) {
+      selectedModifications.add(modType)
+      btn.classList.add('selected')
+    }
+  })
+  
+  updateModificationUI()
+  showNotification(`プリセット「${preset.name}」を読み込みました`)
+}
+
+function handleDeletePreset(presetId) {
+  const preset = getPreset(presetId)
+  if (!preset) {
+    return
+  }
+  
+  if (confirm(`プリセット「${preset.name}」を削除しますか？`)) {
+    const success = deletePreset(presetId)
+    if (success) {
+      showNotification(`プリセット「${preset.name}」を削除しました`)
+      renderPresets()
+    } else {
+      showNotification('プリセットの削除に失敗しました')
+    }
+  }
+}
 
 // Start the app
 init()
