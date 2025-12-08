@@ -390,11 +390,17 @@ async function handleModification(modificationType) {
 
   try {
     const adjustedYaml = await adjustYamlPlan(currentYaml, modificationType, geminiKey)
-    elements.yamlEditor.value = adjustedYaml
-    updateYamlLineNumbers()
-    showNotification(`${modName}に調整しました！ 「再生成」で画像を更新してください`)
+    if (adjustedYaml && adjustedYaml.trim().length > 0) {
+      elements.yamlEditor.value = adjustedYaml
+      updateYamlLineNumbers()
+      showNotification(`${modName}に調整しました！ 「再生成」で画像を更新してください`)
+    } else {
+      showNotification(`調整失敗: YAMLが空です。元のYAMLを保持します。`)
+    }
   } catch (error) {
+    console.error('Modification error:', error)
     showNotification(`調整失敗: ${error.message}`)
+    // Keep the original YAML in the editor (do not clear it)
   }
 
   // Re-enable all modification buttons

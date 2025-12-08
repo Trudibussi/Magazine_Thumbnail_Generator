@@ -204,17 +204,38 @@ export async function adjustYamlPlan(yamlContent, modificationType, apiKey) {
   const data = await response.json()
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
 
+  console.log('Gemini response:', text)
+
   // Extract YAML from markdown code block
   const yamlMatch = text.match(/```yaml\n([\s\S]*?)```/)
   if (yamlMatch) {
-    return yamlMatch[1].trim()
+    const extractedYaml = yamlMatch[1].trim()
+    if (extractedYaml.length > 0) {
+      return extractedYaml
+    }
   }
 
   // Try to extract YAML without code block markers
   const yamlStart = text.indexOf('layout:')
   if (yamlStart !== -1) {
-    return text.slice(yamlStart).trim()
-  }  return text.trim()
+    const extractedYaml = text.slice(yamlStart).trim()
+    if (extractedYaml.length > 0) {
+      return extractedYaml
+    }
+  }
+
+  // If extraction failed, throw error instead of returning empty string
+  if (text.trim().length === 0) {
+    throw new Error('Geminiからのレスポンスが空です。もう一度試してください。')
+  }
+
+  // Return the raw text if it contains valid YAML-like content
+  if (text.includes('layout:') || text.includes('header:') || text.includes('cards:')) {
+    return text.trim()
+  }
+
+  // If no valid YAML found, throw error
+  throw new Error('YAMLの抽出に失敗しました。元のYAMLを保持します。')
 }
 
 /**
