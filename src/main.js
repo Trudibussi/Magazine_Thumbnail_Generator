@@ -318,10 +318,19 @@ async function handleGenerate() {
     }
   }
 
+  // Get selected preset style instruction
+  let styleInstruction = null
+  if (currentLoadedPresetId) {
+    const preset = defaultTemplates.find(p => p.id === currentLoadedPresetId) || getPreset(currentLoadedPresetId)
+    if (preset && preset.styleInstruction) {
+      styleInstruction = preset.styleInstruction
+    }
+  }
+
   // Generate YAML plan
   showNotification('YAMLプランを生成中...')
   try {
-    const yamlPlan = await generateYamlPlan(content, geminiKey)
+    const yamlPlan = await generateYamlPlan(content, geminiKey, styleInstruction)
     elements.yamlEditor.value = yamlPlan
     elements.yamlSection.classList.remove('hidden')
     updateYamlLineNumbers()

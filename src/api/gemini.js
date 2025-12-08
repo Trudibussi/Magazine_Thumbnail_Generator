@@ -81,7 +81,14 @@ footer:
  * @param {string} apiKey - Gemini API key
  * @returns {Promise<string>} - The generated YAML plan
  */
-export async function generateYamlPlan(content, apiKey) {
+export async function generateYamlPlan(content, apiKey, styleInstruction = null) {
+  // Build prompt with optional style instruction
+  let contentPrompt = `\n\n以下のコンテンツを分析して、週刊誌風サムネイルのYAMLプランを生成してください：\n\n${content}`
+  
+  if (styleInstruction) {
+    contentPrompt += `\n\n## スタイル指定\n以下のスタイルでYAMLを生成してください：\n${styleInstruction}`
+  }
+
   const response = await fetch(
     `${GEMINI_API_URL}/gemini-3-pro-preview:generateContent?key=${apiKey}`,
     {
@@ -95,7 +102,7 @@ export async function generateYamlPlan(content, apiKey) {
             role: 'user',
             parts: [
               { text: YAML_SYSTEM_PROMPT },
-              { text: `\n\n以下のコンテンツを分析して、週刊誌風サムネイルのYAMLプランを生成してください：\n\n${content}` }
+              { text: contentPrompt }
             ]
           }
         ],
